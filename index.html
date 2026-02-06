@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jiaxuan Li | Portfolio</title>
     <style>
-        /* === 1. 全局设置 === */
+        /* === 1. 全局与字体设置 === */
         :root {
-            --bg-color: #fcfcfc; /* 干净的纸张白 */
+            --bg-color: #fcfcfc;
             --text-color: #111111;
             --border-color: #000000;
         }
@@ -15,375 +15,677 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-color);
+            background-color: #f4f3f0;
             color: var(--text-color);
             font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-            line-height: 1.5;
-            overflow-x: hidden;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* 初始禁止滚动 */
+            cursor: none; /* 隐藏默认鼠标 */
         }
 
-        /* === 2. 导航栏 (保持极简) === */
+        /* === 2. 自定义反色光标 (严格固定大小) === */
+        #custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 20px; 
+            height: 20px;
+            background-color: #fff;
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            /* 关键修改：只过渡颜色，不过渡大小 */
+            transition: background-color 0.2s; 
+            border-radius: 0;
+        }
+
+        body.hovering #custom-cursor {
+            /* 关键修改：删除了 width: 50px; height: 50px; */
+            background-color: #ff6b00;
+        }
+
+        /* === 3. 背景：数据纹理层 === */
+        #background-texture {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            opacity: 0.35;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 10px;
+            line-height: 1.4;
+            color: #333;
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            transition: opacity 0.8s ease;
+        }
+
+        .log-column {
+            display: flex;
+            flex-direction: column;
+            width: 130px;
+        }
+
+        .log-row { height: 14px; overflow: hidden; }
+        .dot-marker { color: #aaa; }
+
+        /* === 4. 前景：Canvas 粒子层 === */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+        }
+
+        /* === 5. 点击提示 === */
+        .click-hint {
+            position: fixed;
+            bottom: 30px; right: 40px; z-index: 20;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 12px; font-weight: 600;
+            color: #000; background: #f4f3f0;
+            padding: 5px 10px; border: 1px solid #000;
+            pointer-events: none;
+            animation: blink 1.5s infinite step-end;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* === 6. 正式页面样式 === */
+        .hidden { display: none; }
+        .fade-in { display: block; animation: contentFadeIn 1s forwards; }
+        @keyframes contentFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 进入主页后 */
+        body.content-mode {
+            background-color: var(--bg-color);
+            overflow-y: auto;
+            height: auto;
+        }
+
+        /* 导航栏 */
         nav { 
             display: flex; justify-content: space-between; padding: 2rem 5%; 
-            align-items: center; border-bottom: 2px solid var(--border-color); 
+            align-items: center; border-bottom: 1px solid #ddd; 
             background: var(--bg-color);
             position: sticky; top: 0; z-index: 100;
         }
-        .logo { 
-            font-family: "Times New Roman", Times, serif; 
-            font-weight: 700; font-size: 1.5rem; 
-            font-style: italic;
-        }
+        .logo { font-family: "Times New Roman", serif; font-weight: 700; font-size: 1.5rem; font-style: italic; }
         .nav-links { list-style: none; display: flex; gap: 40px; }
         .nav-links a { 
-            text-decoration: none; color: var(--text-color); 
+            text-decoration: none; color: #000; 
             font-family: "Courier New", monospace; 
             font-weight: 600; font-size: 0.9rem; text-transform: uppercase; 
-            transition: opacity 0.3s;
+            cursor: none;
         }
-        .nav-links a:hover { opacity: 0.6; }
 
-        /* === 3. 个人档案区域 (Profile Section) === */
-        .profile-section {
+        /* 通用容器 */
+        .container {
             max-width: 1200px;
-            margin: 80px auto;
+            margin: 0 auto;
             padding: 0 5%;
+        }
+
+        /* === 简历部分 === */
+        .resume-container {
             display: grid;
-            grid-template-columns: 300px 1fr; /* 左侧固定宽，右侧自适应 */
-            gap: 60px;
+            grid-template-columns: 320px 1fr;
+            gap: 80px;
             align-items: start;
+            margin-top: 80px;
+            margin-bottom: 120px;
         }
 
-        /* 左侧：照片与基础信息 */
-        .profile-left {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; /* 文字靠右对齐，呼应参考图 */
+        .profile-sidebar {
             text-align: right;
-        }
-
-        .profile-photo-container {
-            width: 100%;
-            aspect-ratio: 1 / 1.1; /* 接近参考图的比例 */
-            background-color: #f0f0f0; /* 图片未加载时的占位色 */
-            border: 1px solid #ddd;
-            margin-bottom: 30px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: sticky;
+            top: 120px;
         }
 
         .profile-photo {
             width: 100%;
-            height: 100%;
+            aspect-ratio: 1/1;
+            background-color: #f0f0f0;
             object-fit: cover;
-            display: block;
-            /* 如果图片未加载，显示 alt 文字 */
-            font-family: "Courier New", monospace;
-            font-size: 12px;
-            color: #999;
+            margin-bottom: 40px;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.05); 
         }
 
         .profile-name {
-            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-family: "PingFang SC", sans-serif;
             font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            letter-spacing: 0.1em;
         }
 
         .profile-meta {
-            font-family: "Courier New", monospace;
-            font-size: 0.9rem;
+            font-family: "Helvetica Neue", sans-serif;
+            font-size: 1rem;
             color: #555;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+            font-weight: 300;
         }
 
-        .profile-keywords {
+        .keywords-list {
             list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.95rem;
+            font-size: 1rem;
+            line-height: 2.2;
             font-weight: 500;
         }
-        .profile-keywords li {
-            position: relative;
-            padding-right: 15px;
-        }
-        .profile-keywords li::after {
-            content: "•";
-            position: absolute;
-            right: 0;
-            color: #999;
-        }
+        .keywords-list li { position: relative; padding-right: 20px; }
+        .keywords-list li::after { content: "•"; position: absolute; right: 0; color: #000; }
 
-        /* 右侧：详细经历 */
-        .profile-right {
-            display: flex;
-            flex-direction: column;
-            gap: 50px; /* 板块间距 */
-        }
+        .resume-content { display: flex; flex-direction: column; gap: 60px; }
+        .resume-section h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: #000; border-left: 4px solid #000; padding-left: 15px; }
 
-        .resume-block {
-            width: 100%;
-        }
-
-        .resume-title {
-            font-family: "PingFang SC", sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            /* border-bottom: 1px solid #000;  参考图没有横线，如果需要可以加 */
-        }
-
-        /* 表格化布局 */
-        .resume-table {
-            width: 100%;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .resume-row {
+        .resume-item {
+            border: 1px solid #000;
+            padding: 25px;
+            margin-bottom: -1px;
             display: grid;
-            /* 定义列宽：学校/机构名 | 专业/职位 | 时间 */
-            grid-template-columns: 2fr 2fr 1.5fr; 
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
+            grid-template-columns: 2fr 2fr 1.5fr;
             align-items: center;
-        }
-
-        .resume-row:last-child {
-            border-bottom: none;
-        }
-
-        .resume-text {
             font-size: 0.95rem;
-            color: #333;
+            transition: background-color 0.3s;
         }
-        .resume-text.bold { font-weight: 600; }
-        .resume-text.time { 
-            text-align: right; 
-            font-family: "Courier New", monospace; 
-            font-size: 0.85rem;
-            color: #666;
-        }
+        .resume-item:hover { background-color: #f9f9f9; }
+        .item-title { font-weight: 700; }
+        .item-role { color: #333; }
+        .item-date { text-align: right; color: #666; font-family: "Courier New", monospace; font-size: 0.85rem; }
 
-        /* 技能列表特殊布局 */
-        .skills-list {
-            border: 1px solid var(--border-color);
-            padding: 20px;
-        }
+        .skills-box { border: 1px solid #000; padding: 30px; }
+        .skill-row { display: grid; grid-template-columns: 140px 1fr; margin-bottom: 25px; line-height: 1.6; }
+        .skill-row:last-child { margin-bottom: 0; }
+        .skill-name { font-weight: 700; font-size: 0.95rem; display: flex; align-items: baseline; }
+        .skill-name::before { content: "•"; margin-right: 10px; }
+        .skill-desc { font-size: 0.9rem; color: #444; text-align: justify; }
 
-        .skill-item {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        .skill-item:last-child { margin-bottom: 0; }
-
-        .skill-label {
-            font-weight: 700;
-            font-size: 0.95rem;
-            position: relative;
-        }
-        .skill-label::after {
-            content: "•";
-            position: absolute;
-            left: -15px;
-            color: #000;
-        }
-        
-        .skill-desc {
-            font-size: 0.9rem;
-            color: #444;
-            text-align: justify;
-        }
-
-        /* === 4. 作品集区域 (Project Section) === */
-        .works-section {
-            max-width: 1400px;
-            margin: 100px auto 0;
-            padding: 0 5% 100px;
+        /* === 作品集网格部分 === */
+        #work {
+            padding-top: 60px;
+            border-top: 1px solid #eee;
         }
 
         .section-header {
-            font-family: "Courier New", monospace; 
-            margin-bottom: 40px; 
-            padding-left: 20px; 
-            border-left: 4px solid #000; 
+            margin-bottom: 60px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .section-title {
+            font-family: "Times New Roman", serif;
+            font-size: 3rem;
+            font-weight: 700;
+            font-style: italic;
+        }
+        .section-line { flex-grow: 1; height: 1px; background: #000; }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            padding-bottom: 100px;
+        }
+
+        .project-card {
+            background: #fff;
+            cursor: none;
+            transition: all 0.4s ease;
+            border: 1px solid #000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 0px #000; 
+        }
+
+        .project-image {
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+            border-bottom: 1px solid #000;
+        }
+
+        .project-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            transition: filter 0.3s, transform 0.5s;
+        }
+
+        .project-card:hover .project-image img {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .project-info {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .project-info h3 {
+            font-family: "Times New Roman", serif;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .project-info p {
+            font-family: "Courier New", monospace;
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .project-tag {
+            margin-top: 15px;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
+            border: 1px solid #000;
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            align-self: flex-start;
         }
-
-        .project-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
-            gap: 40px; 
-        }
-        
-        .project-card { 
-            background: #fff; cursor: pointer; transition: all 0.4s ease; 
-            border: 1px solid #000; 
-            overflow: hidden; 
-        }
-        .project-card:hover { transform: translateY(-5px); box-shadow: 5px 5px 0px #000; } 
-        
-        .project-image img { width: 100%; height: auto; display: block; filter: grayscale(100%); transition: filter 0.3s; }
-        .project-card:hover .project-image img { filter: grayscale(0%); }
-        
-        .project-info { padding: 25px; border-top: 1px solid #000; }
-        .project-info h3 { font-family: "Times New Roman", serif; font-size: 1.5rem; margin-bottom: 5px; }
-        .project-info p { font-family: "Courier New", monospace; font-size: 0.8rem; color: #555; }
 
         /* 页脚 */
-        footer { padding: 80px 5%; border-top: 2px solid #000; color: #000; display: flex; justify-content: space-between; margin-top: 50px; font-family: "Courier New", monospace; }
+        footer { padding: 80px 5%; border-top: 2px solid #000; color: #000; display: flex; justify-content: space-between; margin-top: 50px; font-family: "Courier New", monospace; font-size: 0.8rem; }
 
-        /* 响应式适配 */
+        /* 辅助 */
+        a, .resume-item, .project-card, canvas { cursor: none; }
+        
+        /* 移动端适配 */
         @media (max-width: 768px) {
-            .profile-section { grid-template-columns: 1fr; gap: 40px; }
-            .profile-left { align-items: flex-start; text-align: left; }
-            .profile-keywords li::after { right: auto; left: -15px; }
-            .profile-keywords { padding-left: 15px; }
-            .resume-row { grid-template-columns: 1fr; gap: 5px; text-align: left; }
-            .resume-text.time { text-align: left; }
-            .skill-item { grid-template-columns: 1fr; gap: 5px; }
-            .skill-label::after { content: ""; } /* 移动端去掉点，避免错位 */
+            .resume-container { grid-template-columns: 1fr; gap: 40px; margin-top: 40px;}
+            .profile-sidebar { text-align: left; position: static; }
+            .resume-item { grid-template-columns: 1fr; gap: 8px; }
+            .item-date { text-align: left; }
+            .skill-row { grid-template-columns: 1fr; gap: 5px; }
+            .section-title { font-size: 2rem; }
         }
 
     </style>
 </head>
 <body>
 
-    <!-- 导航栏 -->
-    <nav>
-        <div class="logo">Jiaxuan Li.</div>
-        <ul class="nav-links">
-            <li><a href="#work">Work</a></li>
-            <li><a href="#profile">Profile</a></li>
-            <li><a href="mailto:jiaxuanli0101@163.com">Contact</a></li>
-        </ul>
-    </nav>
+    <div id="custom-cursor"></div>
+    <div id="background-texture"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="click-hint">[ CLICK_TO_ENTER ]</div>
 
-    <!-- 个人档案 (Profile) -->
-    <section id="profile" class="profile-section">
-        
-        <!-- 左侧：照片与基础信息 -->
-        <div class="profile-left">
-            <div class="profile-photo-container">
-                <!-- 请确保您的 images 文件夹里有一张名为 profile.jpg 的照片 -->
-                <img src="images/profile.jpg" alt="Profile Photo" class="profile-photo" onerror="this.style.display='none'; this.parentNode.style.backgroundColor='#eee'; this.parentNode.innerText='[ IMAGE_PLACEHOLDER ]'">
-            </div>
-            
-            <h1 class="profile-name">李佳璇</h1>
-            <div class="profile-meta">Date of Birth: 2002.05</div>
-            
-            <ul class="profile-keywords">
-                <li>洞察</li>
-                <li>共情</li>
-                <li>逻辑</li>
-                <li>创意</li>
+    <div id="home-content" class="hidden">
+        <nav>
+            <div class="logo">Jiaxuan Li.</div>
+            <ul class="nav-links">
+                <li><a href="#resume" class="hover-trigger">Resume</a></li>
+                <li><a href="#work" class="hover-trigger">Work</a></li>
+                <li><a href="mailto:jiaxuanli0101@163.com" class="hover-trigger">Contact</a></li>
             </ul>
-        </div>
-
-        <!-- 右侧：详细经历 -->
-        <div class="profile-right">
+        </nav>
+        
+        <div class="container">
             
-            <!-- 教育经历 -->
-            <div class="resume-block">
-                <h2 class="resume-title">教育经历</h2>
-                <div class="resume-table">
-                    <div class="resume-row">
-                        <span class="resume-text bold">Royal College of Art</span>
-                        <span class="resume-text">Digital Direction</span>
-                        <span class="resume-text time">2025.09-至今 (2026.08毕业)</span>
+            <!-- 1. 简历部分 -->
+            <div class="resume-container" id="resume">
+                <aside class="profile-sidebar">
+                    <img src="images/profile.jpg" alt="Li Jiaxuan" class="profile-photo hover-trigger">
+                    <h1 class="profile-name">李佳璇</h1>
+                    <div class="profile-meta">Date of Birth: 2002.05</div>
+                    <ul class="keywords-list">
+                        <li>洞察</li>
+                        <li>共情</li>
+                        <li>逻辑</li>
+                        <li>创意</li>
+                    </ul>
+                </aside>
+
+                <div class="resume-content">
+                    <div class="resume-section">
+                        <h2>教育经历</h2>
+                        <div class="resume-list">
+                            <div class="resume-item hover-trigger">
+                                <span class="item-title">Royal College of Art</span>
+                                <span class="item-role">Digital Direction</span>
+                                <span class="item-date">2025.09-至今 (2026.08毕业)</span>
+                            </div>
+                            <div class="resume-item hover-trigger">
+                                <span class="item-title">成都理工大学</span>
+                                <span class="item-role">建筑学</span>
+                                <span class="item-date">2020.09-2025.08</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="resume-row">
-                        <span class="resume-text bold">成都理工大学</span>
-                        <span class="resume-text">建筑学</span>
-                        <span class="resume-text time">2020.09-2025.08</span>
+
+                    <div class="resume-section">
+                        <h2>实习经历</h2>
+                        <div class="resume-list">
+                            <div class="resume-item hover-trigger">
+                                <span class="item-title">简阳市建筑设计院</span>
+                                <span class="item-role">助理设计师</span>
+                                <span class="item-date">2024.09-2025.01</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resume-section">
+                        <h2>专业技能</h2>
+                        <div class="skills-box hover-trigger">
+                            <div class="skill-row">
+                                <span class="skill-name">核心设计</span>
+                                <span class="skill-desc">熟练掌握UX/UI设计，擅长结合AI技术搭建设计规范系统及制作高保真交互原型。工具：Figma, Ps, Ai, Ae等</span>
+                            </div>
+                            <div class="skill-row">
+                                <span class="skill-name">创意技术与三维</span>
+                                <span class="skill-desc">专注于三维空间设计与实时渲染，探索虚实交互的设计边界。工具：Unity (C#), Blender, SketchUp</span>
+                            </div>
+                            <div class="skill-row">
+                                <span class="skill-name">代码思维</span>
+                                <span class="skill-desc">具备前端开发与工程落地思维，能通过 Arduino 与Web技术、TouchDesigner等实现软硬件实时交互。技术：HTML/CSS, C# 基础, Processing/Arduino, TouchDesigner</span>
+                            </div>
+                            <div class="skill-row">
+                                <span class="skill-name">方法论与研究</span>
+                                <span class="skill-desc">擅长用户洞察与系统性思维，运用思辨设计方法论进行逻辑分析与信息架构搭建</span>
+                            </div>
+                            <div class="skill-row">
+                                <span class="skill-name">语言能力</span>
+                                <span class="skill-desc">雅思 6.5</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 实习经历 -->
-            <div class="resume-block">
-                <h2 class="resume-title">实习经历</h2>
-                <div class="resume-table">
-                    <div class="resume-row">
-                        <span class="resume-text bold">简阳市建筑设计院</span>
-                        <span class="resume-text">助理设计师</span>
-                        <span class="resume-text time">2024.09-2025.01</span>
-                    </div>
+            <!-- 2. 作品集网格部分 -->
+            <section id="work">
+                <div class="section-header">
+                    <h2 class="section-title">Selected Works</h2>
+                    <div class="section-line"></div>
                 </div>
-            </div>
 
-            <!-- 专业技能 -->
-            <div class="resume-block">
-                <h2 class="resume-title">专业技能</h2>
-                <div class="skills-list">
-                    <div class="skill-item">
-                        <span class="skill-label">核心设计</span>
-                        <span class="skill-desc">熟练掌握UX/UI设计，擅长结合AI技术搭建设计规范系统及制作高保真交互原型。工具：Figma, Ps, Ai, Ae等</span>
+                <div class="project-grid">
+                    <div class="project-card hover-trigger">
+                        <div class="project-image">
+                            <img src="images/boxlink-cover.jpg" alt="BoxLink">
+                        </div>
+                        <div class="project-info">
+                            <div>
+                                <h3>BoxLink</h3>
+                                <p>针对跨境转运现状提出的全链路透明化解决方案。</p>
+                            </div>
+                            <div class="project-tag">UX/UI Design</div>
+                        </div>
                     </div>
-                    <div class="skill-item">
-                        <span class="skill-label">创意技术与三维</span>
-                        <span class="skill-desc">专注于三维空间设计与实时渲染，探索虚实交互的设计边界。工具：Unity (C#), Blender, SketchUp</span>
+
+                    <div class="project-card hover-trigger">
+                        <div class="project-image">
+                            <img src="images/xhs-cover.jpg" alt="Xiaohongshu">
+                        </div>
+                        <div class="project-info">
+                            <div>
+                                <h3>小红书升级</h3>
+                                <p>将小红书从“内容消费流”升级为支持“项目制生活”的生活操作系统。</p>
+                            </div>
+                            <div class="project-tag">App Redesign</div>
+                        </div>
                     </div>
-                    <div class="skill-item">
-                        <span class="skill-label">代码思维</span>
-                        <span class="skill-desc">具备前端开发与工程落地思维，能通过 Arduino 与Web技术、TouchDesigner等实现软硬件实时交互。技术：HTML/CSS, C#基础, Processing/Arduino, TouchDesigner</span>
+
+                    <div class="project-card hover-trigger">
+                        <div class="project-image">
+                            <img src="images/tresense-cover.jpg" alt="Tresense">
+                        </div>
+                        <div class="project-info">
+                            <div>
+                                <h3>植觉 (Tresense)</h3>
+                                <p>一款结合AI对话与AR互动的陪伴应用。</p>
+                            </div>
+                            <div class="project-tag">AR / AI Companion</div>
+                        </div>
                     </div>
-                    <div class="skill-item">
-                        <span class="skill-label">方法论与研究</span>
-                        <span class="skill-desc">擅长用户洞察与系统性思维，运用思辨设计方法论进行逻辑分析与信息架构搭建</span>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-label">语言能力</span>
-                        <span class="skill-desc">雅思 6.5</span>
+
+                    <div class="project-card hover-trigger">
+                        <div class="project-image">
+                            <img src="images/other-works-cover.jpg" alt="Other Works" onerror="this.style.display='none';this.parentNode.style.backgroundColor='#000'">
+                        </div>
+                        <div class="project-info">
+                            <div>
+                                <h3>Other Works</h3>
+                                <p>Workshop, Creative Coding</p>
+                            </div>
+                            <div class="project-tag">Experimental</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
         </div>
-    </section>
+        
+        <footer>
+            <div>Jiaxuan Li © 2026</div>
+            <div>SCROLL_TO_TOP ↑</div>
+        </footer>
+    </div>
 
-    <!-- 精选作品 (Selected Works) -->
-    <main id="work" class="works-section">
-        <div class="section-header">SELECTED_WORKS_INDEX</div>
-        <div class="project-grid">
-             <div class="project-card">
-                <div class="project-image"><img src="images/boxlink-cover.jpg" alt="BoxLink"></div>
-                <div class="project-info">
-                    <h3>BoxLink</h3>
-                    <p>LOGISTICS / AI / TRANSPARENCY</p>
-                </div>
-            </div>
-            <div class="project-card">
-                <div class="project-image"><img src="images/xhs-cover.jpg" alt="XHS"></div>
-                <div class="project-info">
-                    <h3>Xiaohongshu</h3>
-                    <p>EXPERIENCE UPGRADE / SYSTEM</p>
-                </div>
-            </div>
-            <div class="project-card">
-                <div class="project-image"><img src="images/tresense-cover.jpg" alt="Tresense"></div>
-                <div class="project-info">
-                    <h3>Tresense</h3>
-                    <p>DIGITAL HEALING / AR / AI</p>
-                </div>
-            </div>
-        </div>
-    </main>
-    
-    <!-- 页脚 -->
-    <footer>
-        <div>Jiaxuan Li © 2026</div>
-        <div>SCROLL_TO_TOP ↑</div>
-    </footer>
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            if (!isExploding) { mouse.x = e.clientX; mouse.y = e.clientY; }
+        });
 
+        function bindHoverEvents() {
+            const hoverTriggers = document.querySelectorAll('.hover-trigger, a, .resume-item, .skills-box, .project-card');
+            hoverTriggers.forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            });
+        }
+        bindHoverEvents();
+
+        function generateBackgroundText() {
+            const container = document.getElementById('background-texture');
+            container.innerHTML = ''; 
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const colCount = Math.floor(width / 130); 
+            const rowCount = Math.ceil(height / 14) + 5; 
+            const dateStr = `Feb 07`;
+
+            for (let i = 0; i < colCount; i++) {
+                const column = document.createElement('div');
+                column.className = 'log-column';
+                let currentRow = 0;
+                while (currentRow < rowCount) {
+                    const blockType = Math.random();
+                    const blockLength = Math.floor(Math.random() * 12) + 4; 
+                    for (let j = 0; j < blockLength && currentRow < rowCount; j++) {
+                        const row = document.createElement('div');
+                        row.className = 'log-row';
+                        if (blockType < 0.85) { 
+                            if (Math.random() > 0.15) { 
+                                const time = `${Math.floor(Math.random()*12)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
+                                const suffix = Math.random() > 0.5 ? ' [OK]' : '';
+                                row.innerHTML = `${dateStr} ${time}${suffix}`;
+                            } else {
+                                row.innerHTML = `<span class="dot-marker">.</span>`;
+                            }
+                        } else if (blockType < 0.95) {
+                            row.innerHTML = `<span class="dot-marker">. . .</span>`;
+                        } else {
+                            row.innerHTML = `&nbsp;`; 
+                        }
+                        column.appendChild(row);
+                        currentRow++;
+                    }
+                }
+                container.appendChild(column);
+            }
+        }
+        generateBackgroundText();
+
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        const splashContainer = document.getElementById('background-texture');
+        const hint = document.querySelector('.click-hint');
+        const homeContent = document.getElementById('home-content');
+
+        let particles = [];
+        let width, height;
+        let isExploding = false;
+        let explosionCenter = { x: 0, y: 0 };
+        let explosionRadius = 0;
+        let animationId;
+        let mouse = { x: -9999, y: -9999, radius: 100 };
+
+        class Particle {
+            constructor(x, y, size) {
+                this.x = x; this.y = y; this.originX = x; this.originY = y;
+                this.size = size; this.color = '#000000';
+                this.vx = 0; this.vy = 0; this.exploded = false; this.alpha = 1;
+                this.density = (Math.random() * 30) + 1;
+            }
+            draw() {
+                if (this.alpha <= 0) return;
+                ctx.fillStyle = `rgba(0, 0, 0, ${this.alpha})`;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+            update() {
+                if (isExploding) {
+                    const dx = this.originX - explosionCenter.x;
+                    const dy = this.originY - explosionCenter.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const waveFront = explosionRadius;
+                    if (!this.exploded) {
+                        if (dist < waveFront) {
+                            this.exploded = true;
+                            const angle = Math.atan2(dy, dx);
+                            const force = Math.random() * 15 + 5;
+                            this.vx = Math.cos(angle) * force;
+                            this.vy = Math.sin(angle) * force;
+                            this.vx += (Math.random() - 0.5) * 5;
+                            this.vy += (Math.random() - 0.5) * 5;
+                        }
+                    } else {
+                        this.x += this.vx; this.y += this.vy;
+                        this.vx *= 0.95; this.vy *= 0.95;
+                        this.alpha -= 0.015;
+                    }
+                } else {
+                    let dx = mouse.x - this.x; let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let maxDistance = mouse.radius;
+                    if (distance < maxDistance) {
+                        let force = (maxDistance - distance) / maxDistance;
+                        this.x -= (dx / distance) * force * this.density;
+                        this.y -= (dy / distance) * force * this.density;
+                    } else {
+                        if (this.x !== this.originX) this.x -= (this.x - this.originX) / 10;
+                        if (this.y !== this.originY) this.y -= (this.y - this.originY) / 10;
+                    }
+                }
+            }
+        }
+
+        function init() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            particles = [];
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            let mainFontSize = Math.min(width * 0.15, 180); 
+            let subFontSize = Math.max(Math.min(width * 0.04, 24), 14);
+
+            ctx.font = `italic ${mainFontSize * 0.4}px "Times New Roman", serif`;
+            ctx.fillText('Hello,', centerX, centerY - mainFontSize * 0.7);
+            ctx.font = `bold ${mainFontSize * 0.5}px "Times New Roman", serif`;
+            ctx.fillText("I'M", centerX, centerY - mainFontSize * 0.2);
+            ctx.font = `bold ${mainFontSize}px "Times New Roman", serif`;
+            ctx.fillText('JIAXUAN LI.', centerX, centerY + mainFontSize * 0.6);
+            ctx.font = `bold ${subFontSize}px "Courier New", monospace`;
+            ctx.fillText('UX/UI DESIGNER & CREATIVE TECHNOLOGIST', centerX, centerY + mainFontSize * 1.3);
+
+            const gap = 2; 
+            const imageData = ctx.getImageData(0, 0, width, height).data;
+            ctx.clearRect(0, 0, width, height);
+            for (let y = 0; y < height; y += gap) {
+                for (let x = 0; x < width; x += gap) {
+                    const index = (y * width + x) * 4;
+                    if (imageData[index + 3] > 128) particles.push(new Particle(x, y, 1.6));
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            if (isExploding) explosionRadius += 40;
+            let activeCount = 0;
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha > 0) activeCount++;
+            }
+            if (isExploding && activeCount === 0) {
+                cancelAnimationFrame(animationId);
+                finishTransition();
+                return;
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function finishTransition() {
+            canvas.style.display = 'none';
+            splashContainer.style.display = 'none'; 
+            hint.style.display = 'none';
+            document.body.classList.add('hovering'); 
+            document.body.classList.add('content-mode'); 
+            
+            homeContent.classList.remove('hidden');
+            homeContent.classList.add('fade-in');
+            
+            rebindCursor(); 
+            setTimeout(bindHoverEvents, 500);
+        }
+
+        function rebindCursor() {
+             setTimeout(bindHoverEvents, 100);
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (isExploding) return;
+            isExploding = true;
+            explosionCenter = { x: e.clientX, y: e.clientY };
+            hint.style.display = 'none';
+            splashContainer.style.opacity = '0';
+            document.body.classList.remove('hovering');
+        });
+
+        document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+        window.addEventListener('resize', () => {
+            if (!isExploding) { generateBackgroundText(); init(); }
+        });
+
+        init();
+        animate();
+    </script>
 </body>
 </html>
