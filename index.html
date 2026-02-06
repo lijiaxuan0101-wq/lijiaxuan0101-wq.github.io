@@ -7,39 +7,37 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav>
-        <div class="logo">Jiaxuan Li</div>
-        <ul class="nav-links">
-            <li><a href="#work">作品 (Work)</a></li>
-            <li><a href="#about">关于 (About)</a></li>
-            <li><a href="mailto:jiaxuanli0101@163.com">联系 (Contact)</a></li>
-        </ul>
-    </nav>
-    <header class="hero">
-        <div class="star-icon">✦</div>
-        <h1>李佳璇 (Jiaxuan Li)</h1>
-        <p class="subtitle">UX/UI 设计师 | 思辨设计 | 创意编程</p>
-        <p class="school">皇家艺术学院 (Royal College of Art)</p>
-    </header>
-    <main id="work">
-        <h2 class="section-title">精选作品</h2>
-        <div class="project-grid">
-            <div class="project-card">
-                <div class="project-image"><img src="images/boxlink-cover.jpg" alt="BoxLink"></div>
-                <div class="project-info"><h3>BoxLink</h3><p>全链路透明化解决方案</p></div>
-            </div>
-            <div class="project-card">
-                <div class="project-image"><img src="images/xhs-cover.jpg" alt="XHS"></div>
-                <div class="project-info"><h3>小红书升级</h3><p>重构流式体验</p></div>
-            </div>
-            <div class="project-card">
-                <div class="project-image"><img src="images/tresense-cover.jpg" alt="Tresense"></div>
-                <div class="project-info"><h3>植觉 Tresense</h3><p>AI 对话与 AR 互动</p></div>
-            </div>
+    <div id="splash" class="splash-screen">
+        <div class="ripple-text">
+            <h1>Hello, I’m Jiaxuan Li.</h1>
+            <p>UX/UI Designer & Creative Technologist.</p>
         </div>
-    </main>
-    <footer>
-        <p>Email: jiaxuanli0101@163.com | Wechat: Pulilili_</p>
-    </footer>
+        
+        <svg class="ripple-filter">
+            <filter id="displacementFilter">
+                <feTurbulence type="ripple" baseFrequency="0" numOctaves="2" result="turbulence"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="0" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </svg>
+    </div>
+
+    <div id="home-content" class="hidden">
+        <nav>
+            <div class="logo">Jiaxuan Li</div>
+            <ul class="nav-links">
+                <li><a href="#work">Work</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="mailto:jiaxuanli0101@163.com">Contact</a></li>
+            </ul>
+        </nav>
+        
+        <main id="work">
+            <h2 class="section-title">Selected Works</h2>
+            <div class="project-grid">
+                </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
