@@ -1,69 +1,268 @@
-/* 瑞士风格基础设置 */
-body, html {
+/* 全局设置 */
+* {
     margin: 0;
     padding: 0;
-    background-color: #000; /* 初始背景黑色 */
+    box-sizing: border-box;
+    cursor: none; /* 隐藏默认鼠标，显得更酷 */
+}
+
+body {
+    background-color: #000;
     color: #fff;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     overflow-x: hidden;
 }
 
-.hidden {
-    display: none;
-}
-
-/* 欢迎页样式 */
+/* === 欢迎页样式 (瑞士网格风格) === */
 .splash-screen {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
+    background-color: #000;
+    z-index: 999;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #000;
-    z-index: 100;
-    cursor: pointer;
+    padding: 20px; /* 四周留白 */
+    /* 绑定 JS 的滤镜 */
+    filter: url(#displacementFilter);
 }
 
-.ripple-text {
-    text-align: center;
-    filter: url(#displacementFilter); /* 关联 SVG 滤镜 */
+.swiss-grid {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #fff; /* 最外层大边框 */
+    display: grid;
+    /* 定义网格：左侧窄，右侧宽 */
+    grid-template-columns: 25% 1fr;
+    /* 定义行高：上部信息，中部名字，底部提示 */
+    grid-template-rows: 15% 1fr 10%;
+}
+
+/* 网格单元格通用样式 */
+.cell {
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
     padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-    .ripple-text h1 {
-        font-size: 8vw; /* 极大的字号占据屏幕 */
-        font-weight: 900;
-        margin: 0;
-        line-height: 1;
-        letter-spacing: -3px;
-        text-transform: uppercase;
+    /* 去掉最右边和最下边的线条，防止双重边框 */
+    .cell:nth-child(2n) {
+        border-right: none;
+    }
+/* 右侧列无右边框 */
+.cell-footer {
+    border-bottom: none;
+    border-right: none;
+}
+
+.cell-name {
+    border-right: none;
+}
+
+/* 1. 左上角：PORTFOLIO 2026 */
+.cell-1 {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+    .cell-1 .year {
+        font-size: 2rem;
+        font-weight: bold;
+        align-self: flex-end;
     }
 
-    .ripple-text p {
-        font-size: 1.5vw;
-        font-weight: 300;
-        margin-top: 20px;
-        letter-spacing: 2px;
+/* 2. 右上角：角色 */
+.cell-2 {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+    .cell-2 p {
+        text-align: right;
+        font-weight: bold;
+        font-size: 1.2rem;
+        line-height: 1.2;
     }
+
+/* 3. 左侧中部：地点 */
+.cell-3 {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    justify-content: flex-end;
+}
+
+    .cell-3 p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        transform: rotate(-90deg);
+        transform-origin: bottom left;
+        white-space: nowrap;
+        position: absolute;
+        bottom: 20px;
+        left: 40px;
+    }
+
+/* 4. 名字区域 (核心视觉) */
+.cell-name {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    display: flex;
+    align-items: flex-start; /* 名字靠上，或者 center 居中 */
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden; /* 防止溢出 */
+}
+
+    .cell-name h1 {
+        font-size: 11vw; /* 关键：使用 vw 单位，字号随屏幕宽度自动调整 */
+        line-height: 0.9;
+        font-weight: 900;
+        text-transform: uppercase;
+        white-space: nowrap; /* 关键：强制不换行 */
+        letter-spacing: -5px; /* 紧凑字距 */
+        margin-left: -5px;
+    }
+
+/* 5. 底部点击提示 */
+.cell-footer {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: #fff; /* 反色块 */
+    color: #000;
+}
+
+.click-hint {
+    font-weight: bold;
+    font-size: 1.2rem;
+    animation: blink 1s infinite;
+}
+
+/* 小标签样式 */
+.label {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* 闪烁动画 */
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
 
 /* SVG 滤镜隐藏 */
 .ripple-filter {
     position: absolute;
-    height: 0;
     width: 0;
+    height: 0;
 }
 
-/* 进入正式页面后的白底黑字样式 */
-.light-mode {
+/* === 正式页面样式 (进入后) === */
+.hidden {
+    display: none;
+}
+
+/* 你的原始导航和作品样式保留在下方，我做了一些黑白化微调 */
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem 5%;
+    align-items: center;
+    border-bottom: 1px solid #333; /* 加一条细线 */
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+}
+
+    .nav-links a {
+        text-decoration: none;
+        color: #000; /* 黑字 */
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+.hero {
+    padding: 100px 5%;
+    border-bottom: 1px solid #333;
+}
+
+    .hero h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #000;
+    }
+
+    .hero .subtitle {
+        font-size: 1.5rem;
+        color: #666;
+    }
+
+.star-icon {
+    color: #000;
+    font-size: 3rem;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 40px 5%;
+}
+
+.project-card {
+    border: 1px solid #000; /* 黑色边框，极简 */
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+    .project-card:hover {
+        background: #000;
+        color: #fff;
+        transform: translateY(-5px);
+    }
+
+.project-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: grayscale(100%); /* 图片黑白化，鼠标悬停可恢复 */
+    transition: filter 0.3s;
+}
+
+.project-card:hover .project-image img {
+    filter: grayscale(0%); /* 悬停变彩色 */
+}
+
+.project-info {
+    padding: 20px;
+}
+
+/* 进入正式页面后的背景控制 */
+body.light-mode {
     background-color: #fff;
     color: #000;
-    transition: background-color 0.8s ease;
-}
-
-/* 适配你之前的导航栏和网格，只需改颜色 */
-nav .logo, .nav-links a, .section-title {
-    color: inherit;
+    transition: background-color 0.5s ease;
 }

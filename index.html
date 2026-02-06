@@ -7,20 +7,50 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jiaxuan Li | Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 1. 瑞士风格欢迎页 -->
     <div id="splash" class="splash-screen">
-        <div class="ripple-text">
-            <h1>Hello, I’m Jiaxuan Li.</h1>
-            <p>UX/UI Designer & Creative Technologist.</p>
-        </div>
-        
+        <!-- SVG 滤镜（保持不变） -->
         <svg class="ripple-filter">
             <filter id="displacementFilter">
                 <feTurbulence type="ripple" baseFrequency="0" numOctaves="2" result="turbulence"/>
                 <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="0" xChannelSelector="R" yChannelSelector="G" />
             </filter>
         </svg>
+
+        <!-- 网格布局容器 -->
+        <div class="swiss-grid">
+            <div class="cell cell-1">
+                <span class="label">PORTFOLIO</span>
+                <span class="year">2026</span>
+            </div>
+            <div class="cell cell-2">
+                <span class="label">ROLE</span>
+                <p>UX/UI DESIGNER<br>& CREATIVE TECHNOLOGIST</p>
+            </div>
+            <div class="cell cell-3">
+                <span class="label">LOCATION</span>
+                <p>LONDON, UK</p>
+            </div>
+            <!-- 巨大的名字区域 -->
+            <div class="cell cell-name">
+                <h1 class="glitch-text">JIAXUAN LI</h1>
+            </div>
+            <div class="cell cell-footer">
+                <p class="click-hint">[ CLICK TO ENTER ]</p>
+            </div>
+        </div>
     </div>
 
+    <!-- 2. 正式首页（初始隐藏） -->
     <div id="home-content" class="hidden">
         <nav>
             <div class="logo">Jiaxuan Li</div>
@@ -31,12 +61,40 @@
             </ul>
         </nav>
         
+        <header class="hero">
+            <div class="star-icon">✦</div>
+            <h1>李佳璇 (Jiaxuan Li)</h1>
+            <p class="subtitle">UX/UI 设计师 | 思辨设计 | 创意编程</p>
+            <p class="school">皇家艺术学院 (Royal College of Art)</p>
+        </header>
+
         <main id="work">
             <h2 class="section-title">Selected Works</h2>
             <div class="project-grid">
+                <!-- 之前的卡片代码保持不变 -->
+                 <div class="project-card">
+                    <div class="project-image"><img src="images/boxlink-cover.jpg" alt="BoxLink"></div>
+                    <div class="project-info"><h3>BoxLink</h3><p>全链路透明化解决方案</p></div>
                 </div>
+                <div class="project-card">
+                    <div class="project-image"><img src="images/xhs-cover.jpg" alt="XHS"></div>
+                    <div class="project-info"><h3>小红书升级</h3><p>重构流式体验</p></div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image"><img src="images/tresense-cover.jpg" alt="Tresense"></div>
+                    <div class="project-info"><h3>植觉 Tresense</h3><p>AI 对话与 AR 互动</p></div>
+                </div>
+            </div>
         </main>
+        
+        <footer>
+            <p>Email: jiaxuanli0101@163.com</p>
+        </footer>
     </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
 
     <script src="script.js"></script>
 </body>
