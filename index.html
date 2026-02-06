@@ -4,96 +4,454 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jiaxuan Li | Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* === 1. 全局与字体设置 === */
+        :root {
+            --bg-color: #f4f3f0;
+            --text-color: #111111;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            cursor: none; /* 隐藏默认鼠标 */
+        }
+
+        /* === 2. 自定义反色光标 === */
+        #custom-cursor {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+            border-radius: 0;
+        }
+
+        body.hovering #custom-cursor {
+            width: 60px;
+            height: 60px;
+            background-color: #ff6b00;
+        }
+
+        /* === 3. 背景：数据纹理层 === */
+        #background-texture {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            opacity: 0.35;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #333;
+            white-space: pre-wrap;
+            user-select: none;
+            pointer-events: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            transition: opacity 0.8s ease;
+        }
+
+        .log-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === 4. 前景：Canvas 粒子层 === */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+        }
+
+        /* === 5. 点击提示 === */
+        .click-hint {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            z-index: 20;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000;
+            background: #f4f3f0;
+            padding: 5px 10px;
+            border: 1px solid #000;
+            pointer-events: none;
+            animation: blink 1.5s infinite step-end;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* === 6. 正式页面样式 === */
+        .hidden { display: none; }
+        .fade-in { display: block; animation: contentFadeIn 1s forwards; }
+        @keyframes contentFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        nav { 
+            display: flex; justify-content: space-between; padding: 2rem 5%; 
+            align-items: center; border-bottom: 2px solid #000; 
+            background: var(--bg-color);
+            cursor: none;
+        }
+        .logo { 
+            font-family: "Times New Roman", Times, serif; 
+            font-weight: 700; font-size: 1.5rem; 
+            font-style: italic;
+        }
+        .nav-links { list-style: none; display: flex; gap: 40px; }
+        .nav-links a { 
+            text-decoration: none; color: #000; 
+            font-family: "Courier New", monospace; 
+            font-weight: 600; font-size: 0.9rem; text-transform: uppercase; 
+            cursor: none;
+        }
+        
+        .hero { padding: 120px 5%; max-width: 1400px; margin: 0 auto; }
+        
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; padding: 0 5% 100px; max-width: 1400px; margin: 0 auto; }
+        
+        .project-card { 
+            background: #fff; cursor: none; transition: all 0.4s ease; 
+            border: 1px solid #000; 
+            overflow: hidden; 
+        }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 5px 5px 0px #000; } 
+        
+        .project-image img { width: 100%; height: auto; display: block; filter: grayscale(100%); transition: filter 0.3s; }
+        .project-card:hover .project-image img { filter: grayscale(0%); }
+        
+        .project-info { padding: 25px; border-top: 1px solid #000; }
+        .project-info h3 { font-family: "Times New Roman", serif; font-size: 1.5rem; margin-bottom: 5px; }
+        .project-info p { font-family: "Courier New", monospace; font-size: 0.8rem; color: #555; }
+
+        footer { padding: 80px 5%; border-top: 2px solid #000; color: #000; display: flex; justify-content: space-between; margin-top: 50px; font-family: "Courier New", monospace; }
+
+        a, .project-card, canvas {
+            cursor: none;
+        }
+
+    </style>
 </head>
 <body>
-    <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jiaxuan Li | Portfolio</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <!DOCTYPE html>
-    <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Jiaxuan Li | Portfolio</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <!-- 1. 极简欢迎页 (Splash Screen) -->
-        <div id="splash" class="splash-screen">
-            <!-- 涟漪滤镜定义 -->
-            <svg class="ripple-filter">
-                <filter id="displacementFilter">
-                    <feTurbulence type="ripple" baseFrequency="0.01" numOctaves="2" result="turbulence"/>
-                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="50" xChannelSelector="R" yChannelSelector="G" />
-                </filter>
-            </svg>
-    
-            <!-- 核心文字区 -->
-            <div class="hero-content">
-                <h1>
-                    HELLO, I’M<br>
-                    <span class="name-nowrap">JIAXUAN LI.</span>
-                </h1>
-                <p class="role">UX/UI DESIGNER & CREATIVE TECHNOLOGIST.</p>
-                <p class="click-hint">[ CLICK TO ENTER ]</p>
-            </div>
-        </div>
-    
-        <!-- 2. 正式首页 (进入后显示) -->
-        <div id="home-content" class="hidden">
-            <nav>
-                <div class="logo">Jiaxuan Li</div>
-                <ul class="nav-links">
-                    <li><a href="#work">Work</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="mailto:jiaxuanli0101@163.com">Contact</a></li>
-                </ul>
-            </nav>
-            
-            <header class="hero">
-                <div class="star-icon">✦</div>
-                <h1>李佳璇 (Jiaxuan Li)</h1>
-                <p class="subtitle">UX/UI 设计师 | 思辨设计 | 创意编程</p>
-                <p class="school">皇家艺术学院 (Royal College of Art)</p>
-            </header>
-    
-            <main id="work">
-                <h2 class="section-title">Selected Works</h2>
-                <div class="project-grid">
-                     <div class="project-card">
-                        <div class="project-image"><img src="images/boxlink-cover.jpg" alt="BoxLink"></div>
-                        <div class="project-info"><h3>BoxLink</h3><p>全链路透明化解决方案</p></div>
-                    </div>
-                    <div class="project-card">
-                        <div class="project-image"><img src="images/xhs-cover.jpg" alt="XHS"></div>
-                        <div class="project-info"><h3>小红书升级</h3><p>重构流式体验</p></div>
-                    </div>
-                    <div class="project-card">
-                        <div class="project-image"><img src="images/tresense-cover.jpg" alt="Tresense"></div>
-                        <div class="project-info"><h3>植觉 Tresense</h3><p>AI 对话与 AR 互动</p></div>
+
+    <div id="custom-cursor"></div>
+    <div id="background-texture"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="click-hint">[ CLICK_TO_ENTER ]</div>
+
+    <div id="home-content" class="hidden">
+        <nav>
+            <div class="logo">Jiaxuan Li.</div>
+            <ul class="nav-links">
+                <li><a href="#work" class="hover-trigger">Work</a></li>
+                <li><a href="#about" class="hover-trigger">About</a></li>
+                <li><a href="mailto:jiaxuanli0101@163.com" class="hover-trigger">Contact</a></li>
+            </ul>
+        </nav>
+        
+        <header class="hero">
+            <h1 style="font-family: 'Times New Roman', serif; font-size: 5rem; line-height: 1; margin-bottom: 30px;">
+                Hello,<br>I'm<br>Jiaxuan Li.
+            </h1>
+            <p style="font-family: 'Courier New', monospace; max-width: 500px; line-height: 1.6;">
+                UX/UI DESIGNER & CREATIVE TECHNOLOGIST.<br>
+                BASED IN LONDON, UK.<br>
+                2025 — 2026
+            </p>
+        </header>
+
+        <main id="work">
+            <div style="font-family: 'Courier New'; margin-bottom: 40px; padding-left: 5%; border-bottom: 1px solid #000; padding-bottom: 10px; display: inline-block;">SELECTED_WORKS_INDEX</div>
+            <div class="project-grid">
+                 <div class="project-card hover-trigger">
+                    <div class="project-image"><img src="images/boxlink-cover.jpg" alt="BoxLink"></div>
+                    <div class="project-info">
+                        <h3>BoxLink</h3>
+                        <p>LOGISTICS / AI / TRANSPARENCY</p>
                     </div>
                 </div>
-            </main>
-            
-            <footer>
-                <p>Email: jiaxuanli0101@163.com</p>
-            </footer>
-        </div>
-    
-        <script src="script.js"></script>
-    </body>
-    </html>
-    <script src="script.js"></script>
-</body>
-</html>
+                <div class="project-card hover-trigger">
+                    <div class="project-image"><img src="images/xhs-cover.jpg" alt="XHS"></div>
+                    <div class="project-info">
+                        <h3>Xiaohongshu</h3>
+                        <p>EXPERIENCE UPGRADE / SYSTEM</p>
+                    </div>
+                </div>
+                <div class="project-card hover-trigger">
+                    <div class="project-image"><img src="images/tresense-cover.jpg" alt="Tresense"></div>
+                    <div class="project-info">
+                        <h3>Tresense</h3>
+                        <p>DIGITAL HEALING / AR / AI</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <div>Jiaxuan Li © 2026</div>
+            <div>SCROLL_TO_TOP ↑</div>
+        </footer>
+    </div>
 
-    <script src="script.js"></script>
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            if (!isExploding) {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            }
+        });
+
+        const hoverTriggers = document.querySelectorAll('.hover-trigger, a');
+        hoverTriggers.forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        function generateBackgroundText() {
+            const container = document.getElementById('background-texture');
+            const colCount = Math.ceil(window.innerWidth / 140);
+            const dateStr = `Feb 07 2026`;
+            
+            let html = '';
+            for (let i = 0; i < colCount; i++) {
+                let colContent = `<div class="log-column">`;
+                for (let j = 0; j < 50; j++) {
+                    const time = `${Math.floor(Math.random()*12)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')} pm`;
+                    if (Math.random() > 0.8) {
+                        colContent += `<span style="opacity:0">.</span>`;
+                    } else {
+                        colContent += `<span>${dateStr} ${time}</span>`;
+                    }
+                }
+                colContent += `</div>`;
+                html += colContent;
+            }
+            container.innerHTML = html;
+        }
+        generateBackgroundText();
+
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        const splashContainer = document.getElementById('background-texture');
+        const hint = document.querySelector('.click-hint');
+        const homeContent = document.getElementById('home-content');
+
+        let particles = [];
+        let width, height;
+        let isExploding = false;
+        let explosionCenter = { x: 0, y: 0 };
+        let explosionRadius = 0;
+        let animationId;
+        
+        let mouse = { x: -9999, y: -9999, radius: 100 };
+
+        class Particle {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.originX = x;
+                this.originY = y;
+                this.size = size;
+                this.color = '#000000';
+                this.vx = 0;
+                this.vy = 0;
+                this.exploded = false;
+                this.alpha = 1;
+                this.density = (Math.random() * 30) + 1;
+            }
+
+            draw() {
+                if (this.alpha <= 0) return;
+                ctx.fillStyle = `rgba(0, 0, 0, ${this.alpha})`;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+
+            update() {
+                if (isExploding) {
+                    const dx = this.originX - explosionCenter.x;
+                    const dy = this.originY - explosionCenter.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const waveFront = explosionRadius;
+
+                    if (!this.exploded) {
+                        if (dist < waveFront) {
+                            this.exploded = true;
+                            const angle = Math.atan2(dy, dx);
+                            const force = Math.random() * 15 + 5;
+                            this.vx = Math.cos(angle) * force;
+                            this.vy = Math.sin(angle) * force;
+                            this.vx += (Math.random() - 0.5) * 5;
+                            this.vy += (Math.random() - 0.5) * 5;
+                        }
+                    } else {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        this.vx *= 0.95;
+                        this.vy *= 0.95;
+                        this.alpha -= 0.015;
+                    }
+                } else {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let maxDistance = mouse.radius;
+
+                    if (distance < maxDistance) {
+                        let forceDirectionX = dx / distance;
+                        let forceDirectionY = dy / distance;
+                        let force = (maxDistance - distance) / maxDistance;
+                        let directionX = forceDirectionX * force * this.density;
+                        let directionY = forceDirectionY * force * this.density;
+
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    } else {
+                        if (this.x !== this.originX) {
+                            let dx = this.x - this.originX;
+                            this.x -= dx / 10;
+                        }
+                        if (this.y !== this.originY) {
+                            let dy = this.y - this.originY;
+                            this.y -= dy / 10;
+                        }
+                    }
+                }
+            }
+        }
+
+        function init() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            particles = [];
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            let mainFontSize = Math.min(width * 0.15, 180); 
+            // 关键修正：确保最小字号不小于 14px，否则粒子会糊掉
+            let subFontSize = Math.max(Math.min(width * 0.04, 24), 14);
+
+            ctx.font = `italic ${mainFontSize * 0.4}px "Times New Roman", serif`;
+            ctx.fillText('Hello,', centerX, centerY - mainFontSize * 0.7);
+
+            ctx.font = `bold ${mainFontSize * 0.5}px "Times New Roman", serif`;
+            ctx.fillText("I'M", centerX, centerY - mainFontSize * 0.2);
+
+            ctx.font = `bold ${mainFontSize}px "Times New Roman", serif`;
+            ctx.fillText('JIAXUAN LI.', centerX, centerY + mainFontSize * 0.6);
+
+            // 关键修正：底部文字加粗 (bold)，确保笔画足够粗能被粒子捕捉
+            ctx.font = `bold ${subFontSize}px "Courier New", monospace`;
+            ctx.fillText('UX/UI DESIGNER & CREATIVE TECHNOLOGIST', centerX, centerY + mainFontSize * 1.3);
+
+            const gap = 2; 
+            const imageData = ctx.getImageData(0, 0, width, height).data;
+            ctx.clearRect(0, 0, width, height);
+
+            for (let y = 0; y < height; y += gap) {
+                for (let x = 0; x < width; x += gap) {
+                    const index = (y * width + x) * 4;
+                    const alpha = imageData[index + 3];
+
+                    if (alpha > 128) {
+                        particles.push(new Particle(x, y, 1.6));
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            if (isExploding) {
+                explosionRadius += 40; 
+            }
+
+            let activeCount = 0;
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha > 0) activeCount++;
+            }
+
+            if (isExploding && activeCount === 0) {
+                cancelAnimationFrame(animationId);
+                finishTransition();
+                return;
+            }
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function finishTransition() {
+            canvas.style.display = 'none';
+            splashContainer.style.display = 'none'; 
+            hint.style.display = 'none';
+            document.body.classList.add('hovering'); 
+            
+            homeContent.classList.remove('hidden');
+            homeContent.classList.add('fade-in');
+            document.body.style.overflow = 'auto';
+            
+            setTimeout(() => {
+               document.querySelectorAll('.project-card a').forEach(el => {
+                   el.style.cursor = 'none';
+               });
+            }, 100);
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (isExploding) return;
+            isExploding = true;
+            explosionCenter = { x: e.clientX, y: e.clientY };
+            hint.style.display = 'none';
+            splashContainer.style.opacity = '0';
+            document.body.classList.remove('hovering');
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouse.x = -9999;
+            mouse.y = -9999;
+        });
+
+        window.addEventListener('resize', () => {
+            if (!isExploding) {
+                generateBackgroundText();
+                init();
+            }
+        });
+
+        init();
+        animate();
+
+    </script>
 </body>
 </html>
