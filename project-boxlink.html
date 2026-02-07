@@ -39,11 +39,10 @@
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
-        /* 手机端目录按钮 (移动端显示) */
         .mobile-menu-btn {
             cursor: pointer;
             font-size: 20px;
-            display: none; /* 默认隐藏 */
+            display: none; 
             line-height: 1;
         }
         
@@ -84,7 +83,6 @@
             opacity: 1;
         }
 
-        /* 桌面端折叠箭头按钮 */
         .sidebar-toggle-arrow {
             position: absolute;
             top: 15px;
@@ -100,14 +98,11 @@
             transition: background-color 0.2s;
             z-index: 20;
         }
-        .sidebar-toggle-arrow:hover {
-            background-color: #f0f0f0;
-        }
+        .sidebar-toggle-arrow:hover { background-color: #f0f0f0; }
 
-        /* 收起后的浮动打开按钮 */
         .floating-open-btn {
             position: fixed;
-            top: 80px; /* 避开顶部栏 */
+            top: 80px; 
             left: 20px;
             z-index: 900;
             cursor: pointer;
@@ -170,7 +165,7 @@
             object-fit: contain;
         }
 
-        /* === 状态类：侧边栏收起 (Desktop) === */
+        /* === 状态类：侧边栏收起 === */
         body.sidebar-closed .sidebar-nav {
             width: 0;
             padding: 0;
@@ -184,7 +179,7 @@
             pointer-events: auto;
         }
 
-        /* === 3. 底部导航 (More Projects) === */
+        /* === 3. 底部导航 === */
         .project-footer {
             padding: 80px 5%;
             background-color: #ffffff;
@@ -210,17 +205,19 @@
         }
 
         .footer-card {
-            border: 1px solid #ddd;
+            border: 1px solid #000;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
             color: #000;
             display: block;
+            background: #fff;
+            overflow: hidden; 
         }
         
         .footer-card:hover {
-            border-color: #000;
             transform: translateY(-5px);
+            box-shadow: 8px 8px 0px #000;
         }
 
         .footer-img {
@@ -228,17 +225,16 @@
             height: 180px;
             object-fit: cover;
             background: #f0f0f0;
-            /* 修改：移除 filter: grayscale(100%); 保持彩色 */
-            transition: transform 0.3s;
+            transition: transform 0.5s;
         }
         
         .footer-card:hover .footer-img { 
-            /* 仅保留轻微放大效果 */
-            transform: scale(1.02); 
+            transform: scale(1.05); 
         }
 
         .footer-info {
             padding: 20px;
+            border-top: 1px solid #000;
         }
         
         .footer-info h4 {
@@ -252,13 +248,24 @@
             font-size: 12px;
             color: #666;
         }
+        
+        .next-project-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 60px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 2rem;
+            text-decoration: none; 
+            color: #000; 
+            font-weight: 600; 
+        }
+        .next-project-link:hover { text-decoration: underline; }
 
-        /* === 4. 移动端自适应 (Mobile Responsive) === */
+        /* === 4. 移动端自适应 === */
         @media (max-width: 768px) {
             .top-bar { padding: 0 20px; }
             .project-title-center { display: none; }
             
-            /* 手机端侧边栏：覆盖样式 */
             .sidebar-nav {
                 position: fixed;
                 top: 60px; left: 0;
@@ -271,7 +278,7 @@
                 padding: 0;
                 transition: max-height 0.4s ease;
                 z-index: 999;
-                opacity: 1; /* 手机端始终不透明度为1，通过高度控制显隐 */
+                opacity: 1;
             }
             
             body.mobile-menu-open .sidebar-nav {
@@ -281,20 +288,10 @@
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             }
 
-            /* 手机端隐藏桌面箭头按钮 */
-            .sidebar-toggle-arrow, .floating-open-btn {
-                display: none !important;
-            }
-            
-            .mobile-menu-btn {
-                display: block; /* 显示手机端菜单图标 */
-            }
+            .sidebar-toggle-arrow, .floating-open-btn { display: none !important; }
+            .mobile-menu-btn { display: block; }
 
-            .layout-container {
-                display: block;
-                margin-top: 60px;
-            }
-            
+            .layout-container { display: block; margin-top: 60px; }
             .image-stream { width: 100%; }
             .portfolio-slice { width: 100% !important; height: auto !important; }
             .more-projects-grid { grid-template-columns: 1fr; }
@@ -307,58 +304,35 @@
     <header class="top-bar">
         <div class="nav-controls">
             <a href="index.html#work" class="back-link">← Back</a>
-            <!-- 手机端菜单按钮 -->
             <div class="mobile-menu-btn" id="mobileMenuBtn">≡</div>
         </div>
         
         <div class="project-title-center">BoxLink Project</div>
     </header>
 
-    <!-- 桌面端收起后显示的悬浮打开按钮 -->
     <div class="floating-open-btn" id="floatingOpenBtn" title="Show Index">→</div>
 
     <div class="layout-container">
         
-        <!-- 左侧：目录导航 -->
+        <!-- 左侧目录 -->
         <aside class="sidebar-nav" id="sidebar">
-            <!-- 桌面端收起箭头 -->
             <div class="sidebar-toggle-arrow" id="sidebarCloseBtn" title="Hide Index">←</div>
             
             <div class="nav-list">
-                <div class="nav-item active" onclick="scrollToPage(1)">
-                    <span class="nav-num">00</span><span class="nav-text">首页</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(2)">
-                    <span class="nav-num">01</span><span class="nav-text">信任与效率的危机</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(3)">
-                    <span class="nav-num">02</span><span class="nav-text">打破“二选一”的困局</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(4)">
-                    <span class="nav-num">03</span><span class="nav-text">从“盲盒焦虑”到“透明掌控”</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(5)">
-                    <span class="nav-num">04</span><span class="nav-text">重构发货前的决策链路</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(6)">
-                    <span class="nav-num">05</span><span class="nav-text">重塑全链路确定性</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(7)">
-                    <span class="nav-num">06</span><span class="nav-text">消灭下单前的“未知”</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(8)">
-                    <span class="nav-num">07</span><span class="nav-text">双端协同下的透明化入库</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(9)">
-                    <span class="nav-num">08</span><span class="nav-text">从碎片资产到集约交付的“获益感”</span>
-                </div>
-                <div class="nav-item" onclick="scrollToPage(10)">
-                    <span class="nav-num">09</span><span class="nav-text">多维权衡下的全球动态履约</span>
-                </div>
+                <div class="nav-item active" onclick="scrollToPage(1)"><span class="nav-num">00</span><span class="nav-text">首页</span></div>
+                <div class="nav-item" onclick="scrollToPage(2)"><span class="nav-num">01</span><span class="nav-text">信任与效率的危机</span></div>
+                <div class="nav-item" onclick="scrollToPage(3)"><span class="nav-num">02</span><span class="nav-text">打破“二选一”的困局</span></div>
+                <div class="nav-item" onclick="scrollToPage(4)"><span class="nav-num">03</span><span class="nav-text">从“盲盒焦虑”到“透明掌控”</span></div>
+                <div class="nav-item" onclick="scrollToPage(5)"><span class="nav-num">04</span><span class="nav-text">重构发货前的决策链路</span></div>
+                <div class="nav-item" onclick="scrollToPage(6)"><span class="nav-num">05</span><span class="nav-text">重塑全链路确定性</span></div>
+                <div class="nav-item" onclick="scrollToPage(7)"><span class="nav-num">06</span><span class="nav-text">消灭下单前的“未知”</span></div>
+                <div class="nav-item" onclick="scrollToPage(8)"><span class="nav-num">07</span><span class="nav-text">双端协同下的透明化入库</span></div>
+                <div class="nav-item" onclick="scrollToPage(9)"><span class="nav-num">08</span><span class="nav-text">从碎片资产到集约交付的“获益感”</span></div>
+                <div class="nav-item" onclick="scrollToPage(10)"><span class="nav-num">09</span><span class="nav-text">多维权衡下的全球动态履约</span></div>
             </div>
         </aside>
 
-        <!-- 右侧：图片流 -->
+        <!-- 图片流 -->
         <main class="image-stream">
             <img src="images/boxlink-01.jpg" class="portfolio-slice" id="page-1" alt="Page 1">
             <img src="images/boxlink-02.jpg" class="portfolio-slice" id="page-2" alt="Page 2">
@@ -373,13 +347,15 @@
         </main>
     </div>
 
-    <!-- 底部：更多作品导航 -->
+    <!-- 底部：更新了链接 -->
     <footer class="project-footer">
+        <a href="project-xhs.html" class="next-project-link">小红书 Redesign →</a>
+
         <div class="footer-title">More Projects</div>
         
         <div class="more-projects-grid">
-            <!-- 链接到小红书项目 -->
-            <a href="#" class="footer-card">
+            <!-- 指向小红书 -->
+            <a href="project-xhs.html" class="footer-card">
                 <img src="images/xhs-cover.jpg" class="footer-img" alt="Xiaohongshu">
                 <div class="footer-info">
                     <h4>小红书升级</h4>
@@ -387,8 +363,8 @@
                 </div>
             </a>
 
-            <!-- 链接到植觉项目 -->
-            <a href="#" class="footer-card">
+            <!-- 指向植觉 -->
+            <a href="project-tresense.html" class="footer-card">
                 <img src="images/tresense-cover.jpg" class="footer-img" alt="Tresense">
                 <div class="footer-info">
                     <h4>植觉 (Tresense)</h4>
@@ -396,8 +372,8 @@
                 </div>
             </a>
 
-            <!-- 链接到其他作品 -->
-            <a href="#" class="footer-card">
+            <!-- 指向其他 -->
+            <a href="project-other.html" class="footer-card">
                 <img src="images/other-works-cover.jpg" class="footer-img" alt="Other Works" onerror="this.style.backgroundColor='#000'">
                 <div class="footer-info">
                     <h4>Other Works</h4>
@@ -408,28 +384,16 @@
     </footer>
 
     <script>
-        // === 侧边栏交互逻辑 ===
         const body = document.body;
         const closeBtn = document.getElementById('sidebarCloseBtn');
         const openBtn = document.getElementById('floatingOpenBtn');
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const navItems = document.querySelectorAll('.nav-item');
 
-        function isMobile() {
-            return window.innerWidth <= 768;
-        }
+        function isMobile() { return window.innerWidth <= 768; }
 
-        // 桌面端：收起
-        closeBtn.addEventListener('click', () => {
-            if (!isMobile()) body.classList.add('sidebar-closed');
-        });
-
-        // 桌面端：展开
-        openBtn.addEventListener('click', () => {
-            if (!isMobile()) body.classList.remove('sidebar-closed');
-        });
-
-        // 手机端：切换
+        closeBtn.addEventListener('click', () => { if (!isMobile()) body.classList.add('sidebar-closed'); });
+        openBtn.addEventListener('click', () => { if (!isMobile()) body.classList.remove('sidebar-closed'); });
         mobileBtn.addEventListener('click', () => {
             if (isMobile()) {
                 body.classList.toggle('mobile-menu-open');
@@ -437,44 +401,29 @@
             }
         });
 
-        // === 点击跳转 ===
         function scrollToPage(pageNum) {
             const target = document.getElementById(`page-${pageNum}`);
             if (target) {
                 const offset = target.offsetTop - 70; 
-                window.scrollTo({
-                    top: offset,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: offset, behavior: 'smooth' });
             }
-            // 手机端点击后自动收起
             if (isMobile()) {
                 body.classList.remove('mobile-menu-open');
                 mobileBtn.textContent = "≡";
             }
         }
 
-        // === 滚动监听 (Scroll Spy) ===
         const pages = document.querySelectorAll('.portfolio-slice');
-
-        const observerOptions = {
-            root: null,
-            rootMargin: '-30% 0px -70% 0px', 
-            threshold: 0
-        };
-
+        const observerOptions = { root: null, rootMargin: '-30% 0px -70% 0px', threshold: 0 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const pageNum = parseInt(entry.target.id.split('-')[1]);
                     navItems.forEach(item => item.classList.remove('active'));
-                    if(navItems[pageNum-1]) {
-                        navItems[pageNum-1].classList.add('active');
-                    }
+                    if(navItems[pageNum-1]) navItems[pageNum-1].classList.add('active');
                 }
             });
         }, observerOptions);
-
         pages.forEach(page => observer.observe(page));
     </script>
 

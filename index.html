@@ -35,7 +35,6 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            /* 只过渡颜色，大小固定 */
             transition: background-color 0.2s; 
             border-radius: 0;
         }
@@ -256,10 +255,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            /* 始终保持彩色 */
             transition: transform 0.5s;
         }
 
         .project-card:hover .project-image img {
+            /* 仅放大 */
             transform: scale(1.05);
         }
 
@@ -412,6 +413,7 @@
                 </div>
 
                 <div class="project-grid">
+                    <!-- 链接到 BoxLink -->
                     <div class="project-card hover-trigger" onclick="window.location.href='project-boxlink.html'">
                         <div class="project-image">
                             <img src="images/boxlink-cover.jpg" alt="BoxLink">
@@ -425,7 +427,8 @@
                         </div>
                     </div>
 
-                    <div class="project-card hover-trigger">
+                    <!-- 链接到 小红书 -->
+                    <div class="project-card hover-trigger" onclick="window.location.href='project-xhs.html'">
                         <div class="project-image">
                             <img src="images/xhs-cover.jpg" alt="Xiaohongshu">
                         </div>
@@ -438,7 +441,8 @@
                         </div>
                     </div>
 
-                    <div class="project-card hover-trigger">
+                    <!-- 链接到 植觉 -->
+                    <div class="project-card hover-trigger" onclick="window.location.href='project-tresense.html'">
                         <div class="project-image">
                             <img src="images/tresense-cover.jpg" alt="Tresense">
                         </div>
@@ -451,7 +455,8 @@
                         </div>
                     </div>
 
-                    <div class="project-card hover-trigger">
+                    <!-- 链接到 Other Works -->
+                    <div class="project-card hover-trigger" onclick="window.location.href='project-other.html'">
                         <div class="project-image">
                             <img src="images/other-works-cover.jpg" alt="Other Works" onerror="this.style.display='none';this.parentNode.style.backgroundColor='#000'">
                         </div>
@@ -546,52 +551,33 @@
         let animationId;
         let mouse = { x: -9999, y: -9999, radius: 100 };
 
-        // === 逻辑修正：严格区分“刷新/首次进入”和“返回” ===
         function checkShouldPlayAnimation() {
-            // 1. 获取导航类型
             const navEntry = performance.getEntriesByType("navigation")[0];
             const isReload = navEntry && navEntry.type === 'reload';
-
-            // 2. 检查是否有锚点
             const hasHash = window.location.hash;
 
-            // 核心逻辑：
-            // A. 如果是刷新 (Reload) -> 必须播动画 (无论有没有 #)
-            // B. 如果不是刷新 且 有 # (从详情页返回) -> 跳过动画
-            // C. 其他情况 (首次打开 index.html) -> 播动画
-
-            if (isReload) {
-                return true; // 刷新 = 播
-            }
-
+            if (isReload) return true; 
             if (hasHash) {
-                // 如果是返回操作，跳过动画
                 skipAnimationAndScroll();
                 return false; 
             }
-
-            return true; // 默认播
+            return true; 
         }
 
         function skipAnimationAndScroll() {
-            // 立即隐藏欢迎页
             if(splashContainer) splashContainer.style.display = 'none';
             if(canvas) canvas.style.display = 'none';
             if(hint) hint.style.display = 'none';
             
-            // 显示主页
             homeContent.classList.remove('hidden');
             document.body.classList.add('content-mode');
             document.body.style.overflow = 'auto';
             document.body.classList.add('hovering');
             
-            // 绑定光标
             bindHoverEvents();
 
-            // 滚动到锚点位置
             const target = document.querySelector(window.location.hash);
             if(target) {
-                // 延迟一点点以确保渲染完成
                 setTimeout(() => {
                     target.scrollIntoView({ behavior: 'smooth' });
                 }, 100);
@@ -710,6 +696,15 @@
             homeContent.classList.remove('hidden');
             homeContent.classList.add('fade-in');
             
+            if (window.location.hash) {
+                const target = document.querySelector(window.location.hash);
+                if (target) {
+                    setTimeout(() => {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }, 500);
+                }
+            }
+            
             rebindCursor(); 
             setTimeout(bindHoverEvents, 500);
         }
@@ -735,7 +730,6 @@
             }
         });
 
-        // 启动逻辑
         if (checkShouldPlayAnimation()) {
             generateBackgroundText();
             init();
