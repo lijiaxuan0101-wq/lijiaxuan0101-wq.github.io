@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: #ffffff; /* 修改为纯白背景 */
+            background-color: #ffffff;
             color: #111;
             font-family: "Courier New", Courier, monospace;
             overflow-x: hidden;
@@ -19,7 +19,6 @@
         .top-bar {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 60px;
-            /* 修改为白色半透明背景 */
             background: rgba(255, 255, 255, 0.95);
             border-bottom: 1px solid #000;
             display: flex; align-items: center; padding: 0 40px;
@@ -46,7 +45,7 @@
         /* === 2. 核心布局容器 === */
         .layout-container {
             display: grid;
-            grid-template-columns: 240px 1fr; 
+            grid-template-columns: 260px 1fr; /* 稍微加宽左侧以容纳中文长标题 */
             width: 100%;
             margin: 60px 0 0 0; 
             min-height: 100vh;
@@ -54,7 +53,7 @@
 
         /* === 左侧悬浮目录 === */
         .sidebar-nav {
-            padding: 40px;
+            padding: 40px 30px; /* 调整内边距 */
             height: calc(100vh - 60px);
             position: sticky;
             top: 60px;
@@ -62,27 +61,37 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            /* 修改为纯白背景 */
+            gap: 24px; /* 增加条目间距 */
             background-color: #ffffff; 
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
             z-index: 10;
         }
 
         .nav-item {
             cursor: pointer;
             color: #999;
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 12px; /* 调整字号适应中文 */
+            line-height: 1.6;
             transition: all 0.3s;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             font-weight: 500;
+            align-items: baseline; /* 文字顶部对齐 */
         }
 
         .nav-item span { display: block; }
-        .nav-num { font-weight: 700; min-width: 25px; }
-        .nav-text { text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .nav-num { 
+            font-weight: 700; 
+            min-width: 20px; 
+            font-family: "Helvetica Neue", Arial, sans-serif; /* 数字保持西文 */
+        }
+        
+        .nav-text { 
+            /* 中文标题样式优化 */
+            letter-spacing: 1px;
+            text-align: justify;
+        }
 
         .nav-item:hover, .nav-item.active {
             color: #000;
@@ -91,7 +100,7 @@
         .nav-item.active .nav-num::before {
             content: "→";
             position: absolute;
-            left: 20px;
+            left: 10px; /* 调整箭头位置 */
             color: #ff6b00;
         }
 
@@ -118,7 +127,6 @@
             padding: 100px 5%;
             text-align: center;
             border-top: 1px solid #000;
-            /* 修改为纯白背景 */
             background-color: #ffffff;
         }
         
@@ -146,53 +154,54 @@
 
     <!-- 顶部栏 -->
     <header class="top-bar">
-        <a href="index.html" class="back-link">← Back to Index</a>
+        <!-- 修改：返回链接增加锚点 #work，直接回到作品集列表 -->
+        <a href="index.html#work" class="back-link">← Back to Index</a>
         <div class="project-title-center">BoxLink Project</div>
     </header>
 
     <div class="layout-container">
         
-        <!-- 左侧：目录导航 -->
+        <!-- 左侧：目录导航 (已更新为中文) -->
         <aside class="sidebar-nav">
             <div class="nav-item active" onclick="scrollToPage(1)">
-                <span class="nav-num">01</span>
-                <span class="nav-text">Cover & Overview</span>
+                <span class="nav-num">00</span>
+                <span class="nav-text">首页</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(2)">
-                <span class="nav-num">02</span>
-                <span class="nav-text">User Research</span>
+                <span class="nav-num">01</span>
+                <span class="nav-text">信任与效率的危机</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(3)">
-                <span class="nav-num">03</span>
-                <span class="nav-text">Problem Statement</span>
+                <span class="nav-num">02</span>
+                <span class="nav-text">打破“二选一”的困局</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(4)">
-                <span class="nav-num">04</span>
-                <span class="nav-text">Design Strategy</span>
+                <span class="nav-num">03</span>
+                <span class="nav-text">从“盲盒焦虑”到“透明掌控”</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(5)">
-                <span class="nav-num">05</span>
-                <span class="nav-text">Task Flow</span>
+                <span class="nav-num">04</span>
+                <span class="nav-text">重构发货前的决策链路</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(6)">
-                <span class="nav-num">06</span>
-                <span class="nav-text">Pre-purchase Defense</span>
+                <span class="nav-num">05</span>
+                <span class="nav-text">重塑全链路确定性</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(7)">
-                <span class="nav-num">07</span>
-                <span class="nav-text">Inbound Sovereignty</span>
+                <span class="nav-num">06</span>
+                <span class="nav-text">消灭下单前的“未知”</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(8)">
-                <span class="nav-num">08</span>
-                <span class="nav-text">Strategic Consolidation</span>
+                <span class="nav-num">07</span>
+                <span class="nav-text">双端协同下的透明化入库</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(9)">
-                <span class="nav-num">09</span>
-                <span class="nav-text">Global Fulfillment</span>
+                <span class="nav-num">08</span>
+                <span class="nav-text">从碎片资产到集约交付的“获益感”</span>
             </div>
             <div class="nav-item" onclick="scrollToPage(10)">
-                <span class="nav-num">10</span>
-                <span class="nav-text">Design System</span>
+                <span class="nav-num">09</span>
+                <span class="nav-text">多维权衡下的全球动态履约</span>
             </div>
         </aside>
 
