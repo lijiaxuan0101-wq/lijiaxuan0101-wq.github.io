@@ -556,11 +556,17 @@
             const isReload = navEntry && navEntry.type === 'reload';
             const hasHash = window.location.hash;
 
+            // 逻辑修正：
+            // 1. 如果是刷新 -> 必须播动画
             if (isReload) return true; 
+
+            // 2. 如果带有 Hash (如返回链接) -> 跳过动画
             if (hasHash) {
                 skipAnimationAndScroll();
                 return false; 
             }
+
+            // 3. 其他情况 (首次打开) -> 播动画
             return true; 
         }
 
@@ -696,13 +702,9 @@
             homeContent.classList.remove('hidden');
             homeContent.classList.add('fade-in');
             
-            if (window.location.hash) {
-                const target = document.querySelector(window.location.hash);
-                if (target) {
-                    setTimeout(() => {
-                        target.scrollIntoView({ behavior: 'smooth' });
-                    }, 500);
-                }
+            // 关键修改：进入主页后，如果不是从“back”回来的（无hash），强制滚动到顶部
+            if (!window.location.hash) {
+                window.scrollTo(0, 0);
             }
             
             rebindCursor(); 
@@ -730,6 +732,7 @@
             }
         });
 
+        // 核心：启动时判断是否跳过
         if (checkShouldPlayAnimation()) {
             generateBackgroundText();
             init();
