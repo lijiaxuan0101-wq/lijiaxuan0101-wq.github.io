@@ -39,16 +39,12 @@
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
-        /* 展开目录按钮 (默认隐藏，侧边栏收起时或手机端显示) */
-        .toggle-sidebar-btn {
+        /* 手机端目录按钮 (移动端显示) */
+        .mobile-menu-btn {
             cursor: pointer;
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            font-weight: 700; font-size: 12px;
-            text-transform: uppercase;
-            border: 1px solid #000;
-            padding: 4px 10px;
-            display: none; /* 初始隐藏 */
-            background: #fff;
+            font-size: 20px;
+            display: none; /* 默认隐藏 */
+            line-height: 1;
         }
         
         .project-title-center {
@@ -63,16 +59,17 @@
 
         /* === 2. 核心布局容器 === */
         .layout-container {
-            display: flex; /* 改用 Flex 以便更平滑地处理侧边栏折叠 */
+            display: flex;
             width: 100%;
             margin-top: 60px; 
             min-height: 100vh;
             position: relative;
+            transition: all 0.4s ease;
         }
 
         /* === 左侧悬浮目录 === */
         .sidebar-nav {
-            width: 280px; /* 固定宽度 */
+            width: 280px;
             flex-shrink: 0;
             height: calc(100vh - 60px);
             position: sticky;
@@ -82,25 +79,57 @@
             background-color: #ffffff; 
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             z-index: 10;
-            transition: transform 0.4s ease, width 0.4s ease, padding 0.4s ease;
+            transition: transform 0.4s ease, width 0.4s ease, padding 0.4s ease, opacity 0.4s ease;
             padding: 40px 30px;
+            opacity: 1;
         }
 
-        /* 侧边栏内的关闭按钮 */
-        .close-sidebar-btn {
-            display: block;
-            margin-bottom: 30px;
+        /* 桌面端折叠箭头按钮 */
+        .sidebar-toggle-arrow {
+            position: absolute;
+            top: 15px;
+            right: 15px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 700;
-            color: #999;
+            font-size: 20px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            z-index: 20;
         }
-        .close-sidebar-btn:hover { color: #000; }
+        .sidebar-toggle-arrow:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* 收起后的浮动打开按钮 */
+        .floating-open-btn {
+            position: fixed;
+            top: 80px; /* 避开顶部栏 */
+            left: 20px;
+            z-index: 900;
+            cursor: pointer;
+            font-size: 24px;
+            background: #fff;
+            border: 1px solid #000;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            box-shadow: 2px 2px 0px #000;
+        }
 
         .nav-list {
             display: flex;
             flex-direction: column;
             gap: 24px;
+            margin-top: 10px;
         }
 
         .nav-item {
@@ -126,10 +155,11 @@
 
         /* === 右侧图片流 === */
         .image-stream {
-            flex-grow: 1; /* 自动填满剩余空间 */
+            flex-grow: 1;
             background-color: #fff;
-            width: 100%; /* 确保在 Flex 容器中占满 */
-            min-width: 0; /* 防止 Flex 子项溢出 */
+            width: 100%;
+            min-width: 0;
+            transition: width 0.4s ease;
         }
 
         .portfolio-slice {
@@ -137,19 +167,21 @@
             display: block;
             height: auto;
             background-color: #f9f9f9;
-            object-fit: contain; /* 保证图片完整显示 */
+            object-fit: contain;
         }
 
-        /* === 状态类：侧边栏收起 === */
+        /* === 状态类：侧边栏收起 (Desktop) === */
         body.sidebar-closed .sidebar-nav {
             width: 0;
             padding: 0;
-            overflow: hidden;
+            opacity: 0;
             border-right: none;
+            overflow: hidden;
         }
         
-        body.sidebar-closed .toggle-sidebar-btn {
-            display: block; /* 显示顶部打开按钮 */
+        body.sidebar-closed .floating-open-btn {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* === 3. 底部导航 (More Projects) === */
@@ -196,11 +228,14 @@
             height: 180px;
             object-fit: cover;
             background: #f0f0f0;
-            filter: grayscale(100%);
-            transition: filter 0.3s;
+            /* 修改：移除 filter: grayscale(100%); 保持彩色 */
+            transition: transform 0.3s;
         }
         
-        .footer-card:hover .footer-img { filter: grayscale(0%); }
+        .footer-card:hover .footer-img { 
+            /* 仅保留轻微放大效果 */
+            transform: scale(1.02); 
+        }
 
         .footer-info {
             padding: 20px;
@@ -221,24 +256,24 @@
         /* === 4. 移动端自适应 (Mobile Responsive) === */
         @media (max-width: 768px) {
             .top-bar { padding: 0 20px; }
-            .project-title-center { display: none; /* 手机端隐藏标题以节省空间 */ }
+            .project-title-center { display: none; }
             
-            /* 手机端侧边栏逻辑：变成覆盖式菜单 */
+            /* 手机端侧边栏：覆盖样式 */
             .sidebar-nav {
                 position: fixed;
                 top: 60px; left: 0;
-                width: 100%; /* 占满全屏宽 */
+                width: 100%;
                 height: auto;
-                max-height: 0; /* 默认折叠 */
+                max-height: 0;
                 overflow: hidden;
                 border-right: none;
                 border-bottom: 1px solid #000;
                 padding: 0;
                 transition: max-height 0.4s ease;
                 z-index: 999;
+                opacity: 1; /* 手机端始终不透明度为1，通过高度控制显隐 */
             }
             
-            /* 手机端展开状态 */
             body.mobile-menu-open .sidebar-nav {
                 max-height: 60vh;
                 padding: 30px;
@@ -246,32 +281,23 @@
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             }
 
-            .close-sidebar-btn { display: none; /* 手机端不需要“关闭”字样，靠再次点击按钮 */ }
+            /* 手机端隐藏桌面箭头按钮 */
+            .sidebar-toggle-arrow, .floating-open-btn {
+                display: none !important;
+            }
             
-            .toggle-sidebar-btn {
-                display: block; /* 手机端始终显示这个按钮 */
-                content: "INDEX";
+            .mobile-menu-btn {
+                display: block; /* 显示手机端菜单图标 */
             }
 
-            /* 图片流在手机端 */
             .layout-container {
-                display: block; /* 取消 Flex，变为垂直堆叠 */
+                display: block;
                 margin-top: 60px;
             }
             
-            .image-stream {
-                width: 100%;
-            }
-            
-            .portfolio-slice {
-                width: 100% !important;
-                height: auto !important;
-            }
-
-            /* 底部网格单列 */
-            .more-projects-grid {
-                grid-template-columns: 1fr;
-            }
+            .image-stream { width: 100%; }
+            .portfolio-slice { width: 100% !important; height: auto !important; }
+            .more-projects-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -281,18 +307,22 @@
     <header class="top-bar">
         <div class="nav-controls">
             <a href="index.html#work" class="back-link">← Back</a>
-            <!-- 目录开关按钮 -->
-            <div class="toggle-sidebar-btn" id="sidebarToggle">[ INDEX ]</div>
+            <!-- 手机端菜单按钮 -->
+            <div class="mobile-menu-btn" id="mobileMenuBtn">≡</div>
         </div>
         
         <div class="project-title-center">BoxLink Project</div>
     </header>
 
+    <!-- 桌面端收起后显示的悬浮打开按钮 -->
+    <div class="floating-open-btn" id="floatingOpenBtn" title="Show Index">→</div>
+
     <div class="layout-container">
         
         <!-- 左侧：目录导航 -->
         <aside class="sidebar-nav" id="sidebar">
-            <div class="close-sidebar-btn" id="closeSidebar">[ CLOSE INDEX ]</div>
+            <!-- 桌面端收起箭头 -->
+            <div class="sidebar-toggle-arrow" id="sidebarCloseBtn" title="Hide Index">←</div>
             
             <div class="nav-list">
                 <div class="nav-item active" onclick="scrollToPage(1)">
@@ -348,7 +378,7 @@
         <div class="footer-title">More Projects</div>
         
         <div class="more-projects-grid">
-            <!-- 链接到小红书项目 (如果文件还未创建，暂时点击无效是正常的) -->
+            <!-- 链接到小红书项目 -->
             <a href="#" class="footer-card">
                 <img src="images/xhs-cover.jpg" class="footer-img" alt="Xiaohongshu">
                 <div class="footer-info">
@@ -378,31 +408,34 @@
     </footer>
 
     <script>
-        // === 侧边栏折叠逻辑 ===
+        // === 侧边栏交互逻辑 ===
         const body = document.body;
-        const toggleBtn = document.getElementById('sidebarToggle');
-        const closeBtn = document.getElementById('closeSidebar');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        const openBtn = document.getElementById('floatingOpenBtn');
+        const mobileBtn = document.getElementById('mobileMenuBtn');
         const navItems = document.querySelectorAll('.nav-item');
 
-        // 判断是否是手机端
         function isMobile() {
             return window.innerWidth <= 768;
         }
 
-        // 打开/关闭侧边栏
-        function toggleSidebar() {
-            if (isMobile()) {
-                // 手机端：切换下拉菜单类名
-                body.classList.toggle('mobile-menu-open');
-                toggleBtn.textContent = body.classList.contains('mobile-menu-open') ? "[ CLOSE ]" : "[ INDEX ]";
-            } else {
-                // 电脑端：切换宽度类名
-                body.classList.toggle('sidebar-closed');
-            }
-        }
+        // 桌面端：收起
+        closeBtn.addEventListener('click', () => {
+            if (!isMobile()) body.classList.add('sidebar-closed');
+        });
 
-        toggleBtn.addEventListener('click', toggleSidebar);
-        closeBtn.addEventListener('click', toggleSidebar);
+        // 桌面端：展开
+        openBtn.addEventListener('click', () => {
+            if (!isMobile()) body.classList.remove('sidebar-closed');
+        });
+
+        // 手机端：切换
+        mobileBtn.addEventListener('click', () => {
+            if (isMobile()) {
+                body.classList.toggle('mobile-menu-open');
+                mobileBtn.textContent = body.classList.contains('mobile-menu-open') ? "✕" : "≡";
+            }
+        });
 
         // === 点击跳转 ===
         function scrollToPage(pageNum) {
@@ -414,10 +447,10 @@
                     behavior: 'smooth'
                 });
             }
-            // 手机端点击后自动收起菜单
+            // 手机端点击后自动收起
             if (isMobile()) {
                 body.classList.remove('mobile-menu-open');
-                toggleBtn.textContent = "[ INDEX ]";
+                mobileBtn.textContent = "≡";
             }
         }
 
