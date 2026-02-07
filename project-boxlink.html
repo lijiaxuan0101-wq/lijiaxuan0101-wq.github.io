@@ -9,169 +9,228 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: #f4f3f0; /* 保持与主页一致的暖灰背景 */
+            background-color: #f4f3f0;
             color: #111;
-            font-family: "Courier New", Courier, monospace; /* 保持学术粗野风格 */
+            font-family: "Courier New", Courier, monospace;
             overflow-x: hidden;
         }
 
-        /* === 1. 顶部粘性导航栏 (Sticky Nav) === */
-        .project-nav {
+        /* === 1. 顶部简易栏 (只留返回键) === */
+        .top-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: rgba(244, 243, 240, 0.95); /* 半透明背景 */
+            top: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(244, 243, 240, 0.95);
             border-bottom: 1px solid #000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 5%;
+            display: flex; align-items: center; padding: 0 40px;
             z-index: 1000;
             backdrop-filter: blur(5px);
         }
 
-        .nav-left a {
-            text-decoration: none;
-            color: #000;
-            font-weight: 700;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .back-link {
+            text-decoration: none; color: #000; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; gap: 10px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            /* 顶部返回链接字体 */
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
         
-        .nav-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: "Times New Roman", serif;
-            font-weight: 700;
-            font-style: italic;
-            font-size: 18px;
+        .project-title-center {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            /* 修改字体为商业简洁风格 (无衬线) */
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 600; 
+            font-style: normal; 
+            font-size: 16px;
+            letter-spacing: 0.5px;
         }
 
-        /* 页码选择器 */
-        .page-indicator {
+        /* === 2. 核心布局容器 (左目录 + 右图片) === */
+        .layout-container {
+            display: grid;
+            grid-template-columns: 240px 1fr; /* 左侧固定240px，右侧自适应 */
+            max-width: 1600px;
+            margin: 60px auto 0; /* 避开顶部栏 */
+            min-height: 100vh;
+        }
+
+        /* === 左侧悬浮目录 === */
+        .sidebar-nav {
+            padding: 40px;
+            height: calc(100vh - 60px); /* 视口高度减去顶部栏 */
+            position: sticky;
+            top: 60px;
+            border-right: 1px solid #000; /* 分割线 */
+            overflow-y: auto; /* 如果目录太长允许滚动 */
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 20px;
+            /* 关键修改：左侧目录字体改为商业简洁风格 */
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
-        .page-dot {
+        .nav-item {
             cursor: pointer;
-            font-size: 14px;
             color: #999;
-            transition: color 0.3s;
+            font-size: 13px; /* 稍微调小一点以适应无衬线字体的视觉大小 */
+            line-height: 1.5;
+            transition: all 0.3s;
+            display: flex;
+            gap: 10px;
+            font-weight: 500; /* 增加一点字重 */
         }
 
-        .page-dot:hover, .page-dot.active {
+        .nav-item span { display: block; }
+        .nav-num { font-weight: 700; min-width: 25px; } /* 对齐数字 */
+        .nav-text { text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* 激活状态：变黑 */
+        .nav-item:hover, .nav-item.active {
             color: #000;
-            font-weight: 700;
-            text-decoration: underline;
+        }
+        
+        /* 激活状态：左侧加一个小标记 */
+        .nav-item.active .nav-num::before {
+            content: "→";
+            position: absolute;
+            left: 20px;
+            color: #ff6b00;
         }
 
-        /* === 2. 图片容器 === */
+        /* === 右侧图片流 === */
         .image-stream {
             width: 100%;
-            max-width: 1400px; /* 限制最大宽度，防止在大屏上过大 */
-            margin: 60px auto 0; /* 60px 是导航栏的高度 */
-            border-left: 1px solid #000; /* 左右边框增加精致感 */
-            border-right: 1px solid #000;
             background-color: #fff;
+            /* 居中显示图片，如果屏幕很宽 */
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
         }
 
-        /* 核心：无缝拼接的关键 CSS */
         .portfolio-slice {
             width: 100%;
-            display: block; /* 消除图片底部的微小空隙 */
+            max-width: 1200px; /* 图片本身的最大宽度 */
+            display: block;
             height: auto;
-            /* 可选：如果图片加载失败，显示灰色占位 */
-            min-height: 400px; 
-            background-color: #f0f0f0; 
+            min-height: 400px;
+            background-color: #f9f9f9;
         }
 
-        /* === 3. 底部导航 === */
+        /* === 底部 === */
         .project-footer {
+            grid-column: 1 / -1; /* 跨越两列 */
             padding: 100px 5%;
             text-align: center;
             border-top: 1px solid #000;
-            margin-top: 0;
+            background-color: #f4f3f0;
         }
-
+        
         .next-project {
-            font-family: "Times New Roman", serif;
+            /* 修改字体为商业简洁风格 */
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             font-size: 2rem;
-            text-decoration: none;
-            color: #000;
-            font-weight: 700;
-            font-style: italic;
+            text-decoration: none; 
+            color: #000; 
+            font-weight: 600; 
+            font-style: normal;
         }
-        .next-project:hover { text-decoration: underline; }
 
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .nav-center { display: none; } /* 手机端隐藏标题，给页码留空间 */
-            .page-indicator { gap: 10px; font-size: 12px; }
-            .image-stream { border: none; } /* 手机端铺满全屏 */
+        /* === 移动端适配 === */
+        @media (max-width: 1024px) {
+            .layout-container {
+                grid-template-columns: 1fr; /* 变为单栏 */
+            }
+            .sidebar-nav {
+                display: none; /* 手机和平板隐藏侧边栏，太挤了 */
+            }
+            .image-stream {
+                border-left: none;
+            }
+            /* 手机端可以在顶部栏简单显示页码，或者省略 */
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. 顶部悬浮栏 -->
-    <nav class="project-nav">
-        <div class="nav-left">
-            <a href="index.html">← BACK</a>
-        </div>
-        
-        <div class="nav-center">BoxLink Project</div>
+    <!-- 顶部栏 -->
+    <header class="top-bar">
+        <a href="index.html" class="back-link">← Back to Index</a>
+        <div class="project-title-center">BoxLink Project</div>
+    </header>
 
-        <!-- 页码 (点击可跳转) -->
-        <div class="page-indicator">
-            <span class="page-dot active" onclick="scrollToPage(1)">01</span>
-            <span class="page-dot" onclick="scrollToPage(2)">02</span>
-            <span class="page-dot" onclick="scrollToPage(3)">03</span>
-            <span class="page-dot" onclick="scrollToPage(4)">04</span>
-            <!-- 根据你有多少页，继续添加 -->
-        </div>
-    </nav>
+    <div class="layout-container">
+        
+        <!-- 左侧：目录导航 (在这里修改你的章节标题) -->
+        <aside class="sidebar-nav">
+            <div class="nav-item active" onclick="scrollToPage(1)">
+                <span class="nav-num">01</span>
+                <span class="nav-text">Cover & Overview</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(2)">
+                <span class="nav-num">02</span>
+                <span class="nav-text">User Research</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(3)">
+                <span class="nav-num">03</span>
+                <span class="nav-text">Problem Statement</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(4)">
+                <span class="nav-num">04</span>
+                <span class="nav-text">Design Strategy</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(5)">
+                <span class="nav-num">05</span>
+                <span class="nav-text">Task Flow</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(6)">
+                <span class="nav-num">06</span>
+                <span class="nav-text">Pre-purchase Defense</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(7)">
+                <span class="nav-num">07</span>
+                <span class="nav-text">Inbound Sovereignty</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(8)">
+                <span class="nav-num">08</span>
+                <span class="nav-text">Strategic Consolidation</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(9)">
+                <span class="nav-num">09</span>
+                <span class="nav-text">Global Fulfillment</span>
+            </div>
+            <div class="nav-item" onclick="scrollToPage(10)">
+                <span class="nav-num">10</span>
+                <span class="nav-text">Design System</span>
+            </div>
+        </aside>
 
-    <!-- 2. 图片流 -->
-    <main class="image-stream">
-        <!-- 
-             请将你的切图命名为 boxlink-01.jpg, boxlink-02.jpg 等
-             放在 images 文件夹中
-        -->
-        
-        <!-- 第 1 页 (ID用于锚点定位) -->
-        <img src="images/boxlink-01.jpg" class="portfolio-slice" id="page-1" alt="Page 1">
-        
-        <!-- 第 2 页 -->
-        <img src="images/boxlink-02.jpg" class="portfolio-slice" id="page-2" alt="Page 2">
-        
-        <!-- 第 3 页 -->
-        <img src="images/boxlink-03.jpg" class="portfolio-slice" id="page-3" alt="Page 3">
-        
-        <!-- 第 4 页 -->
-        <img src="images/boxlink-04.jpg" class="portfolio-slice" id="page-4" alt="Page 4">
+        <!-- 右侧：图片流 (在这里放你的图片) -->
+        <main class="image-stream">
+            <img src="images/boxlink-01.jpg" class="portfolio-slice" id="page-1" alt="Page 1">
+            <img src="images/boxlink-02.jpg" class="portfolio-slice" id="page-2" alt="Page 2">
+            <img src="images/boxlink-03.jpg" class="portfolio-slice" id="page-3" alt="Page 3">
+            <img src="images/boxlink-04.jpg" class="portfolio-slice" id="page-4" alt="Page 4">
+            <img src="images/boxlink-05.jpg" class="portfolio-slice" id="page-5" alt="Page 5">
+            <img src="images/boxlink-06.jpg" class="portfolio-slice" id="page-6" alt="Page 6">
+            <img src="images/boxlink-07.jpg" class="portfolio-slice" id="page-7" alt="Page 7">
+            <img src="images/boxlink-08.jpg" class="portfolio-slice" id="page-8" alt="Page 8">
+            <img src="images/boxlink-09.jpg" class="portfolio-slice" id="page-9" alt="Page 9">
+            <img src="images/boxlink-10.jpg" class="portfolio-slice" id="page-10" alt="Page 10">
+        </main>
 
-        <!-- 如果你有更多页，复制上面的<img>标签并修改src和id -->
-    </main>
+        <!-- 底部 -->
+        <footer class="project-footer">
+            <div style="margin-bottom: 20px; font-size: 12px; color: #666; letter-spacing: 2px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">NEXT PROJECT</div>
+            <a href="#" class="next-project">小红书 Redesign →</a>
+        </footer>
 
-    <!-- 3. 底部 -->
-    <footer class="project-footer">
-        <div style="margin-bottom: 20px; font-size: 12px; color: #666;">NEXT PROJECT</div>
-        <a href="#" class="next-project">Xiaohongshu Redesign →</a>
-    </footer>
+    </div>
 
     <script>
-        // === 点击跳转逻辑 ===
+        // === 点击跳转 ===
         function scrollToPage(pageNum) {
             const target = document.getElementById(`page-${pageNum}`);
             if (target) {
-                // 减去 60px 是为了避开顶部的导航栏遮挡
-                const offset = target.offsetTop - 60; 
+                const offset = target.offsetTop - 70; // 留出一点顶部空间
                 window.scrollTo({
                     top: offset,
                     behavior: 'smooth'
@@ -180,26 +239,27 @@
         }
 
         // === 滚动监听 (Scroll Spy) ===
-        // 当滚动到某张图片时，自动高亮顶部的页码
         const pages = document.querySelectorAll('.portfolio-slice');
-        const dots = document.querySelectorAll('.page-dot');
+        const navItems = document.querySelectorAll('.nav-item');
 
         const observerOptions = {
             root: null,
-            rootMargin: '-50% 0px -50% 0px', // 当图片进入屏幕中间 50% 区域时触发
+            rootMargin: '-40% 0px -60% 0px', // 当图片进入屏幕中心时触发
             threshold: 0
         };
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    // 获取当前图片的 ID (page-1 -> 1)
                     const pageNum = parseInt(entry.target.id.split('-')[1]);
                     
-                    // 更新顶部高亮
-                    dots.forEach(dot => dot.classList.remove('active'));
-                    if(dots[pageNum-1]) {
-                        dots[pageNum-1].classList.add('active');
+                    // 移除所有激活状态
+                    navItems.forEach(item => item.classList.remove('active'));
+                    // 激活当前对应的导航项 (数组索引是 pageNum - 1)
+                    if(navItems[pageNum-1]) {
+                        navItems[pageNum-1].classList.add('active');
+                        // 确保导航栏滚动到可见区域（如果列表很长）
+                        navItems[pageNum-1].scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }
             });
