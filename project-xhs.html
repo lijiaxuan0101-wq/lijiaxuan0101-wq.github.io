@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Xiaohongshu Upgrade | Jiaxuan Li</title>
+    <style>
+        /* === 全局重置 === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #ffffff;
+            color: #111;
+            font-family: "Courier New", Courier, monospace;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === 1. 顶部简易栏 === */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 1px solid #000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-link {
+            text-decoration: none; color: #000; font-weight: 700; font-size: 14px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .mobile-menu-btn {
+            cursor: pointer;
+            font-size: 20px;
+            display: none; 
+            line-height: 1;
+        }
+        
+        .project-title-center {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 600; 
+            font-style: normal; 
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* === 2. 核心布局容器 === */
+        .layout-container {
+            display: flex;
+            width: 100%;
+            margin-top: 60px; 
+            min-height: 100vh;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        /* === 左侧悬浮目录 === */
+        .sidebar-nav {
+            width: 280px;
+            flex-shrink: 0;
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+            border-right: 1px solid #000;
+            overflow-y: auto;
+            background-color: #ffffff; 
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            z-index: 10;
+            transition: transform 0.4s ease, width 0.4s ease, padding 0.4s ease, opacity 0.4s ease;
+            padding: 40px 30px;
+            opacity: 1;
+        }
+
+        .sidebar-toggle-arrow {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            z-index: 20;
+        }
+        .sidebar-toggle-arrow:hover { background-color: #f0f0f0; }
+
+        .floating-open-btn {
+            position: fixed;
+            top: 80px; 
+            left: 20px;
+            z-index: 900;
+            cursor: pointer;
+            font-size: 24px;
+            background: #fff;
+            border: 1px solid #000;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            color: #999;
+            font-size: 12px; 
+            line-height: 1.6;
+            transition: all 0.3s;
+            display: flex;
+            gap: 12px;
+            font-weight: 500;
+            align-items: baseline; 
+        }
+
+        .nav-item span { display: block; }
+        .nav-num { font-weight: 700; min-width: 20px; font-family: "Helvetica Neue", Arial, sans-serif; }
+        .nav-text { letter-spacing: 1px; text-align: justify; }
+
+        .nav-item:hover, .nav-item.active { color: #000; }
+        .nav-item.active .nav-num::before {
+            content: "→"; position: absolute; left: 10px; color: #ff6b00;
+        }
+
+        /* === 右侧图片流 === */
+        .image-stream {
+            flex-grow: 1;
+            background-color: #fff;
+            width: 100%;
+            min-width: 0;
+            transition: width 0.4s ease;
+        }
+
+        .portfolio-slice {
+            width: 100%;
+            display: block;
+            height: auto;
+            background-color: #f9f9f9;
+            object-fit: contain;
+        }
+
+        /* === 状态类：侧边栏收起 === */
+        body.sidebar-closed .sidebar-nav {
+            width: 0;
+            padding: 0;
+            opacity: 0;
+            border-right: none;
+            overflow: hidden;
+        }
+        
+        body.sidebar-closed .floating-open-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* === 3. 底部导航 === */
+        .project-footer {
+            padding: 80px 5%;
+            background-color: #ffffff;
+            border-top: 1px solid #000;
+        }
+
+        .footer-title {
+            font-family: "Helvetica Neue", sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .more-projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-card {
+            border: 1px solid #000;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #000;
+            display: block;
+            background: #fff;
+            overflow: hidden; 
+        }
+        
+        .footer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 0px #000;
+        }
+
+        .footer-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #f0f0f0;
+            transition: transform 0.5s;
+        }
+        
+        .footer-card:hover .footer-img { 
+            transform: scale(1.05); 
+        }
+
+        .footer-info {
+            padding: 20px;
+            border-top: 1px solid #000;
+        }
+        
+        .footer-info h4 {
+            font-family: "Helvetica Neue", sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .footer-info p {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .next-project-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 60px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 2rem;
+            text-decoration: none; 
+            color: #000; 
+            font-weight: 600; 
+        }
+        .next-project-link:hover { text-decoration: underline; }
+
+        /* === 4. 移动端自适应 === */
+        @media (max-width: 768px) {
+            .top-bar { padding: 0 20px; }
+            .project-title-center { display: none; }
+            
+            .sidebar-nav {
+                position: fixed;
+                top: 60px; left: 0;
+                width: 100%;
+                height: auto;
+                max-height: 0;
+                overflow: hidden;
+                border-right: none;
+                border-bottom: 1px solid #000;
+                padding: 0;
+                transition: max-height 0.4s ease;
+                z-index: 999;
+                opacity: 1;
+            }
+            
+            body.mobile-menu-open .sidebar-nav {
+                max-height: 60vh;
+                padding: 30px;
+                overflow-y: auto;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+            .sidebar-toggle-arrow, .floating-open-btn { display: none !important; }
+            .mobile-menu-btn { display: block; }
+
+            .layout-container { display: block; margin-top: 60px; }
+            .image-stream { width: 100%; }
+            .portfolio-slice { width: 100% !important; height: auto !important; }
+            .more-projects-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="">
+
+    <!-- 顶部栏 -->
+    <header class="top-bar">
+        <div class="nav-controls">
+            <a href="index.html#work" class="back-link">← Back</a>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">≡</div>
+        </div>
+        
+        <div class="project-title-center">Xiaohongshu Upgrade</div>
+    </header>
+
+    <div class="floating-open-btn" id="floatingOpenBtn" title="Show Index">→</div>
+
+    <div class="layout-container">
+        
+        <!-- 左侧：目录导航 (合并前两页为00) -->
+        <aside class="sidebar-nav" id="sidebar">
+            <div class="sidebar-toggle-arrow" id="sidebarCloseBtn" title="Hide Index">←</div>
+            
+            <div class="nav-list">
+                <!-- 点击跳转至 page-1 -->
+                <div class="nav-item active" onclick="scrollToPage(1)"><span class="nav-num">00</span><span class="nav-text">首页及章节导览</span></div>
+                <!-- 点击跳转至 page-3 -->
+                <div class="nav-item" onclick="scrollToPage(3)"><span class="nav-num">01</span><span class="nav-text">碎片化的旅程</span></div>
+                <!-- 依次顺延 -->
+                <div class="nav-item" onclick="scrollToPage(4)"><span class="nav-num">02</span><span class="nav-text">结构性冲突</span></div>
+                <div class="nav-item" onclick="scrollToPage(5)"><span class="nav-num">03</span><span class="nav-text">认知重构</span></div>
+                <div class="nav-item" onclick="scrollToPage(6)"><span class="nav-num">04</span><span class="nav-text">语境重构</span></div>
+                <div class="nav-item" onclick="scrollToPage(7)"><span class="nav-num">05</span><span class="nav-text">主页升级</span></div>
+                <div class="nav-item" onclick="scrollToPage(8)"><span class="nav-num">06</span><span class="nav-text">频道功能升级</span></div>
+                <div class="nav-item" onclick="scrollToPage(9)"><span class="nav-num">07</span><span class="nav-text">收藏夹专辑功能升级</span></div>
+                <div class="nav-item" onclick="scrollToPage(10)"><span class="nav-num">08</span><span class="nav-text">设计复盘</span></div>
+            </div>
+        </aside>
+
+        <!-- 右侧：图片流 -->
+        <main class="image-stream">
+            <!-- 00部分：page-1 & page-2 -->
+            <img src="images/xhs-01.jpg" class="portfolio-slice" id="page-1" data-nav-index="0" alt="Page 1">
+            <img src="images/xhs-02.jpg" class="portfolio-slice" id="page-2" data-nav-index="0" alt="Page 2">
+            
+            <!-- 01部分：page-3 -->
+            <img src="images/xhs-03.jpg" class="portfolio-slice" id="page-3" data-nav-index="1" alt="Page 3">
+            
+            <!-- 02部分：page-4 -->
+            <img src="images/xhs-04.jpg" class="portfolio-slice" id="page-4" data-nav-index="2" alt="Page 4">
+            
+            <!-- 03部分：page-5 -->
+            <img src="images/xhs-05.jpg" class="portfolio-slice" id="page-5" data-nav-index="3" alt="Page 5">
+            
+            <!-- 04部分：page-6 -->
+            <img src="images/xhs-06.jpg" class="portfolio-slice" id="page-6" data-nav-index="4" alt="Page 6">
+            
+            <!-- 05部分：page-7 -->
+            <img src="images/xhs-07.jpg" class="portfolio-slice" id="page-7" data-nav-index="5" alt="Page 7">
+            
+            <!-- 06部分：page-8 -->
+            <img src="images/xhs-08.jpg" class="portfolio-slice" id="page-8" data-nav-index="6" alt="Page 8">
+            
+            <!-- 07部分：page-9 -->
+            <img src="images/xhs-09.jpg" class="portfolio-slice" id="page-9" data-nav-index="7" alt="Page 9">
+            
+            <!-- 08部分：page-10 -->
+            <img src="images/xhs-10.jpg" class="portfolio-slice" id="page-10" data-nav-index="8" alt="Page 10">
+        </main>
+    </div>
+
+    <!-- 底部：更多作品导航 -->
+    <footer class="project-footer">
+        <a href="project-tresense.html" class="next-project-link">植觉 (Tresense) →</a>
+
+        <div class="footer-title">More Projects</div>
+        
+        <div class="more-projects-grid">
+            <a href="project-boxlink.html" class="footer-card">
+                <img src="images/boxlink-cover.jpg" class="footer-img" alt="BoxLink">
+                <div class="footer-info">
+                    <h4>BoxLink</h4>
+                    <p>UX/UI Design</p>
+                </div>
+            </a>
+
+            <a href="project-tresense.html" class="footer-card">
+                <img src="images/tresense-cover.jpg" class="footer-img" alt="Tresense">
+                <div class="footer-info">
+                    <h4>植觉 (Tresense)</h4>
+                    <p>AR / AI Companion</p>
+                </div>
+            </a>
+
+            <a href="project-other.html" class="footer-card">
+                <img src="images/other-works-cover.jpg" class="footer-img" alt="Other Works" onerror="this.style.backgroundColor='#000'">
+                <div class="footer-info">
+                    <h4>Other Works</h4>
+                    <p>Creative Coding</p>
+                </div>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const body = document.body;
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        const openBtn = document.getElementById('floatingOpenBtn');
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function isMobile() { return window.innerWidth <= 768; }
+
+        closeBtn.addEventListener('click', () => { if (!isMobile()) body.classList.add('sidebar-closed'); });
+        openBtn.addEventListener('click', () => { if (!isMobile()) body.classList.remove('sidebar-closed'); });
+        mobileBtn.addEventListener('click', () => {
+            if (isMobile()) {
+                body.classList.toggle('mobile-menu-open');
+                mobileBtn.textContent = body.classList.contains('mobile-menu-open') ? "✕" : "≡";
+            }
+        });
+
+        function scrollToPage(pageNum) {
+            const target = document.getElementById(`page-${pageNum}`);
+            if (target) {
+                const offset = target.offsetTop - 70; 
+                window.scrollTo({ top: offset, behavior: 'smooth' });
+            }
+            if (isMobile()) {
+                body.classList.remove('mobile-menu-open');
+                mobileBtn.textContent = "≡";
+            }
+        }
+
+        const pages = document.querySelectorAll('.portfolio-slice');
+        const observerOptions = { root: null, rootMargin: '-30% 0px -70% 0px', threshold: 0 };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // 读取 data-nav-index 属性来确定高亮哪个导航项
+                    const navIndex = parseInt(entry.target.getAttribute('data-nav-index'));
+                    navItems.forEach(item => item.classList.remove('active'));
+                    if(navItems[navIndex]) navItems[navIndex].classList.add('active');
+                }
+            });
+        }, observerOptions);
+        
+        pages.forEach(page => observer.observe(page));
+    </script>
+
+</body>
+</html>
