@@ -35,7 +35,6 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            /* 只过渡颜色，大小固定 */
             transition: background-color 0.2s; 
             border-radius: 0;
         }
@@ -151,7 +150,6 @@
             background-color: #f0f0f0;
             object-fit: cover;
             margin-bottom: 40px;
-            /* 无阴影 */
         }
 
         .profile-name {
@@ -492,10 +490,13 @@
                 el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
             });
         }
+        
+        // 绑定悬停事件 (确保任何时候都有效)
         bindHoverEvents();
 
         function generateBackgroundText() {
             const container = document.getElementById('background-texture');
+            if(!container) return;
             container.innerHTML = ''; 
             const width = window.innerWidth;
             const height = window.innerHeight;
@@ -533,7 +534,6 @@
                 container.appendChild(column);
             }
         }
-        generateBackgroundText();
 
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
@@ -548,6 +548,32 @@
         let explosionRadius = 0;
         let animationId;
         let mouse = { x: -9999, y: -9999, radius: 100 };
+
+        // === 检查是否跳过动画逻辑 ===
+        function checkSkipSplash() {
+            if (window.location.hash) {
+                // 直接隐藏欢迎页元素
+                if(splashContainer) splashContainer.style.display = 'none';
+                if(canvas) canvas.style.display = 'none';
+                if(hint) hint.style.display = 'none';
+                
+                // 直接显示主页
+                homeContent.classList.remove('hidden');
+                document.body.classList.add('content-mode');
+                document.body.style.overflow = 'auto';
+                document.body.classList.add('hovering'); // 保持光标激活状态
+                
+                // 延迟跳转锚点
+                setTimeout(() => {
+                    bindHoverEvents();
+                    const target = document.querySelector(window.location.hash);
+                    if(target) target.scrollIntoView({behavior: 'smooth'});
+                }, 100);
+                
+                return true; // 跳过动画
+            }
+            return false; // 正常播放动画
+        }
 
         class Particle {
             constructor(x, y, size) {
@@ -679,12 +705,20 @@
         });
 
         document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+        
         window.addEventListener('resize', () => {
-            if (!isExploding) { generateBackgroundText(); init(); }
+            if (!isExploding && !document.body.classList.contains('content-mode')) { 
+                generateBackgroundText(); init(); 
+            }
         });
 
-        init();
-        animate();
+        // 核心：启动时判断是否跳过
+        if (!checkSkipSplash()) {
+            generateBackgroundText();
+            init();
+            animate();
+        }
+
     </script>
 </body>
 </html>
