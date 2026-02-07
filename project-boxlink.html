@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoxLink | Jiaxuan Li</title>
+    <style>
+        /* === 全局重置 === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #f4f3f0; /* 保持与主页一致的暖灰背景 */
+            color: #111;
+            font-family: "Courier New", Courier, monospace; /* 保持学术粗野风格 */
+            overflow-x: hidden;
+        }
+
+        /* === 1. 顶部粘性导航栏 (Sticky Nav) === */
+        .project-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(244, 243, 240, 0.95); /* 半透明背景 */
+            border-bottom: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-left a {
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: "Times New Roman", serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        /* 页码选择器 */
+        .page-indicator {
+            display: flex;
+            gap: 15px;
+        }
+
+        .page-dot {
+            cursor: pointer;
+            font-size: 14px;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .page-dot:hover, .page-dot.active {
+            color: #000;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* === 2. 图片容器 === */
+        .image-stream {
+            width: 100%;
+            max-width: 1400px; /* 限制最大宽度，防止在大屏上过大 */
+            margin: 60px auto 0; /* 60px 是导航栏的高度 */
+            border-left: 1px solid #000; /* 左右边框增加精致感 */
+            border-right: 1px solid #000;
+            background-color: #fff;
+        }
+
+        /* 核心：无缝拼接的关键 CSS */
+        .portfolio-slice {
+            width: 100%;
+            display: block; /* 消除图片底部的微小空隙 */
+            height: auto;
+            /* 可选：如果图片加载失败，显示灰色占位 */
+            min-height: 400px; 
+            background-color: #f0f0f0; 
+        }
+
+        /* === 3. 底部导航 === */
+        .project-footer {
+            padding: 100px 5%;
+            text-align: center;
+            border-top: 1px solid #000;
+            margin-top: 0;
+        }
+
+        .next-project {
+            font-family: "Times New Roman", serif;
+            font-size: 2rem;
+            text-decoration: none;
+            color: #000;
+            font-weight: 700;
+            font-style: italic;
+        }
+        .next-project:hover { text-decoration: underline; }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .nav-center { display: none; } /* 手机端隐藏标题，给页码留空间 */
+            .page-indicator { gap: 10px; font-size: 12px; }
+            .image-stream { border: none; } /* 手机端铺满全屏 */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 顶部悬浮栏 -->
+    <nav class="project-nav">
+        <div class="nav-left">
+            <a href="index.html">← BACK</a>
+        </div>
+        
+        <div class="nav-center">BoxLink Project</div>
+
+        <!-- 页码 (点击可跳转) -->
+        <div class="page-indicator">
+            <span class="page-dot active" onclick="scrollToPage(1)">01</span>
+            <span class="page-dot" onclick="scrollToPage(2)">02</span>
+            <span class="page-dot" onclick="scrollToPage(3)">03</span>
+            <span class="page-dot" onclick="scrollToPage(4)">04</span>
+            <!-- 根据你有多少页，继续添加 -->
+        </div>
+    </nav>
+
+    <!-- 2. 图片流 -->
+    <main class="image-stream">
+        <!-- 
+             请将你的切图命名为 boxlink-01.jpg, boxlink-02.jpg 等
+             放在 images 文件夹中
+        -->
+        
+        <!-- 第 1 页 (ID用于锚点定位) -->
+        <img src="images/boxlink-01.jpg" class="portfolio-slice" id="page-1" alt="Page 1">
+        
+        <!-- 第 2 页 -->
+        <img src="images/boxlink-02.jpg" class="portfolio-slice" id="page-2" alt="Page 2">
+        
+        <!-- 第 3 页 -->
+        <img src="images/boxlink-03.jpg" class="portfolio-slice" id="page-3" alt="Page 3">
+        
+        <!-- 第 4 页 -->
+        <img src="images/boxlink-04.jpg" class="portfolio-slice" id="page-4" alt="Page 4">
+
+        <!-- 如果你有更多页，复制上面的<img>标签并修改src和id -->
+    </main>
+
+    <!-- 3. 底部 -->
+    <footer class="project-footer">
+        <div style="margin-bottom: 20px; font-size: 12px; color: #666;">NEXT PROJECT</div>
+        <a href="#" class="next-project">Xiaohongshu Redesign →</a>
+    </footer>
+
+    <script>
+        // === 点击跳转逻辑 ===
+        function scrollToPage(pageNum) {
+            const target = document.getElementById(`page-${pageNum}`);
+            if (target) {
+                // 减去 60px 是为了避开顶部的导航栏遮挡
+                const offset = target.offsetTop - 60; 
+                window.scrollTo({
+                    top: offset,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // === 滚动监听 (Scroll Spy) ===
+        // 当滚动到某张图片时，自动高亮顶部的页码
+        const pages = document.querySelectorAll('.portfolio-slice');
+        const dots = document.querySelectorAll('.page-dot');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '-50% 0px -50% 0px', // 当图片进入屏幕中间 50% 区域时触发
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // 获取当前图片的 ID (page-1 -> 1)
+                    const pageNum = parseInt(entry.target.id.split('-')[1]);
+                    
+                    // 更新顶部高亮
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    if(dots[pageNum-1]) {
+                        dots[pageNum-1].classList.add('active');
+                    }
+                }
+            });
+        }, observerOptions);
+
+        pages.forEach(page => observer.observe(page));
+    </script>
+
+</body>
+</html>
