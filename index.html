@@ -113,12 +113,76 @@
             position: sticky; top: 0; z-index: 100;
         }
         .logo { font-family: "Times New Roman", serif; font-weight: 700; font-size: 1.5rem; font-style: italic; }
-        .nav-links { list-style: none; display: flex; gap: 40px; }
-        .nav-links a { 
+        .nav-links { list-style: none; display: flex; gap: 40px; align-items: center; }
+        
+        /* 普通导航链接 */
+        .nav-link-item { 
             text-decoration: none; color: #000; 
             font-family: "Courier New", monospace; 
             font-weight: 600; font-size: 0.9rem; text-transform: uppercase; 
             cursor: none;
+        }
+
+        /* === Contact 按钮特殊样式 (黑底白字) === */
+        .contact-btn {
+            background-color: #000;
+            color: #fff !important;
+            padding: 8px 16px;
+            font-family: "Courier New", monospace; 
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            border: 1px solid #000;
+            transition: all 0.2s;
+            cursor: none;
+            display: inline-block;
+        }
+        .contact-btn:hover {
+            background-color: #fff;
+            color: #000 !important;
+        }
+
+        /* === 下拉菜单容器 === */
+        .nav-item-dropdown {
+            position: relative; 
+        }
+
+        /* 下拉菜单本身 */
+        .contact-dropdown {
+            display: none; 
+            position: absolute;
+            top: 100%; 
+            right: 0; 
+            margin-top: 10px; /* 稍微拉开一点距离 */
+            background: #fff;
+            border: 1px solid #000; 
+            min-width: 160px; /* 加宽一点 */
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.15); 
+            z-index: 1001;
+            flex-direction: column;
+        }
+        
+        .contact-dropdown.show {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 16px 24px; 
+            font-family: "Courier New", monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            cursor: none;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f0f0f0; 
+            letter-spacing: 0.05em;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover {
+            background-color: #f9f9f9;
+            color: #000;
+            padding-left: 28px; /* 悬停移动效果 */
         }
 
         /* 通用容器 */
@@ -255,12 +319,10 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* 始终保持彩色 */
             transition: transform 0.5s;
         }
 
         .project-card:hover .project-image img {
-            /* 仅放大 */
             transform: scale(1.05);
         }
 
@@ -298,11 +360,75 @@
             align-self: flex-start;
         }
 
+        /* === Contact Modal Styles === */
+        #contact-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none; /* 默认隐藏 */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: #fff;
+            border: 2px solid #000;
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            box-shadow: 10px 10px 0px #000;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex; justify-content: flex-end;
+            margin-bottom: 20px; 
+        }
+        .modal-close { cursor: pointer; font-size: 1.5rem; font-weight: 700; }
+
+        /* 子视图 */
+        .sub-view { display: none; flex-direction: column; align-items: center; text-align: center; }
+        .sub-view.active { display: flex; }
+        
+        .qr-placeholder {
+            width: 200px; height: 200px;
+            background: #f0f0f0; border: 1px solid #000;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+        
+        .contact-text-large {
+            font-family: "Courier New", monospace;
+            font-size: 1.2rem; font-weight: 700;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+
+        .action-btn {
+            display: inline-block;
+            background: #000; color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-family: "Helvetica Neue", sans-serif; font-weight: 700; font-size: 0.9rem;
+            margin-top: 10px;
+            cursor: pointer; border: 1px solid #000;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: #fff; color: #000; }
+        
+        .copy-btn {
+            background: #f0f0f0; color: #000; border: 1px solid #ccc;
+            margin-left: 10px; padding: 5px 10px; font-size: 0.8rem;
+        }
+        .copy-btn:hover { border-color: #000; }
+
         /* 页脚 */
         footer { padding: 80px 5%; border-top: 2px solid #000; color: #000; display: flex; justify-content: space-between; margin-top: 50px; font-family: "Courier New", monospace; font-size: 0.8rem; }
 
         /* 辅助 */
-        a, .resume-item, .project-card, canvas { cursor: none; }
+        a, .resume-item, .project-card, canvas, .dropdown-item, .action-btn, .modal-close { cursor: none; }
         
         /* 移动端适配 */
         @media (max-width: 768px) {
@@ -323,13 +449,51 @@
     <canvas id="particle-canvas"></canvas>
     <div class="click-hint">[ CLICK_TO_ENTER ]</div>
 
+    <!-- Contact Modal -->
+    <div id="contact-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-close hover-trigger" onclick="closeModal()">×</span>
+            </div>
+            
+            <!-- Wechat View -->
+            <div id="contact-wechat" class="sub-view">
+                <h3 style="margin-bottom: 20px;">Wechat</h3>
+                <!-- 预留图片位置，请上传 images/wechat-qr.jpg -->
+                <img src="images/wechat-qr.jpg" alt="Wechat QR" class="qr-placeholder">
+                <div style="margin-bottom: 10px;">
+                    <span class="contact-text-large" style="display:block; margin-bottom:10px;">ID: Pulilili_</span>
+                    <button class="action-btn copy-btn hover-trigger" onclick="copyWechat()">Copy ID</button>
+                </div>
+            </div>
+
+            <!-- Email View -->
+            <div id="contact-email" class="sub-view">
+                <h3 style="margin-bottom: 20px;">Email</h3>
+                <div style="margin-bottom: 30px;">
+                    <span id="email-text" class="contact-text-large" style="display:block; margin-bottom:10px;">jiaxuanli0101@163.com</span>
+                    <button class="action-btn copy-btn hover-trigger" onclick="copyEmail()">Copy Address</button>
+                </div>
+                <a href="mailto:jiaxuanli0101@163.com" class="action-btn hover-trigger">Send Email →</a>
+            </div>
+        </div>
+    </div>
+
     <div id="home-content" class="hidden">
         <nav>
             <div class="logo">Jiaxuan Li.</div>
             <ul class="nav-links">
-                <li><a href="#resume" class="hover-trigger">Resume</a></li>
-                <li><a href="#work" class="hover-trigger">Work</a></li>
-                <li><a href="mailto:jiaxuanli0101@163.com" class="hover-trigger">Contact</a></li>
+                <li><a href="#resume" class="nav-link-item hover-trigger">Resume</a></li>
+                <li><a href="#work" class="nav-link-item hover-trigger">Work</a></li>
+                
+                <!-- Contact 下拉菜单 -->
+                <li class="nav-item-dropdown">
+                    <a href="javascript:void(0)" class="contact-btn hover-trigger" id="contactBtn">Contact</a>
+                    <div class="contact-dropdown" id="contactDropdown">
+                        <div class="dropdown-item hover-trigger" onclick="openModal('wechat')">Wechat</div>
+                        <div class="dropdown-item hover-trigger" onclick="openModal('email')">Email</div>
+                    </div>
+                </li>
             </ul>
         </nav>
         
@@ -488,13 +652,83 @@
         });
 
         function bindHoverEvents() {
-            const hoverTriggers = document.querySelectorAll('.hover-trigger, a, .resume-item, .skills-box, .project-card');
+            const hoverTriggers = document.querySelectorAll('.hover-trigger, a, .resume-item, .skills-box, .project-card, .contact-btn, .dropdown-item, .modal-close, .action-btn');
             hoverTriggers.forEach(el => {
                 el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
                 el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
             });
         }
         bindHoverEvents();
+
+        // === Contact Interaction Logic ===
+        const contactBtn = document.getElementById('contactBtn');
+        const contactDropdown = document.getElementById('contactDropdown');
+        const contactModal = document.getElementById('contact-modal');
+        const wechatView = document.getElementById('contact-wechat');
+        const emailView = document.getElementById('contact-email');
+
+        // Toggle dropdown on button click
+        contactBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止冒泡关闭
+            contactDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!contactBtn.contains(e.target) && !contactDropdown.contains(e.target)) {
+                contactDropdown.classList.remove('show');
+            }
+        });
+
+        // Open specific modal view
+        function openModal(type) {
+            contactDropdown.classList.remove('show'); // 选中后关闭下拉菜单
+            contactModal.style.display = 'flex';
+            
+            // Hide all views first
+            wechatView.style.display = 'none';
+            emailView.style.display = 'none';
+            wechatView.classList.remove('active');
+            emailView.classList.remove('active');
+
+            if (type === 'wechat') {
+                wechatView.style.display = 'flex';
+                setTimeout(() => wechatView.classList.add('active'), 10);
+            } else if (type === 'email') {
+                emailView.style.display = 'flex';
+                setTimeout(() => emailView.classList.add('active'), 10);
+            }
+        }
+
+        function closeModal() {
+            contactModal.style.display = 'none';
+        }
+
+        function copyEmail() {
+            const email = "jiaxuanli0101@163.com";
+            navigator.clipboard.writeText(email).then(() => {
+                const btn = document.querySelector('#contact-email .copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(() => btn.innerText = originalText, 2000);
+            });
+        }
+        
+        function copyWechat() {
+            const id = "Pulilili_";
+            navigator.clipboard.writeText(id).then(() => {
+                const btn = document.querySelector('#contact-wechat .copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(() => btn.innerText = originalText, 2000);
+            });
+        }
+
+        // Close modal on outside click
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) closeModal();
+        });
+
 
         function generateBackgroundText() {
             const container = document.getElementById('background-texture');
@@ -556,17 +790,11 @@
             const isReload = navEntry && navEntry.type === 'reload';
             const hasHash = window.location.hash;
 
-            // 逻辑修正：
-            // 1. 如果是刷新 -> 必须播动画
             if (isReload) return true; 
-
-            // 2. 如果带有 Hash (如返回链接) -> 跳过动画
             if (hasHash) {
                 skipAnimationAndScroll();
                 return false; 
             }
-
-            // 3. 其他情况 (首次打开) -> 播动画
             return true; 
         }
 
